@@ -1,0 +1,226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>台灣微轉會議室使用登記</title>
+    <style>
+        /* 頁面設定 */
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+        }
+
+        /* 圖像設定 */
+        img {
+            max-width: 320px;
+            height: auto;
+            margin-top: 20px;
+        }
+
+        /*  */
+        .title{
+            background-color: rgba(0, 0, 0, 0);
+            padding: 16px;
+            margin-top: 16px;
+            text-align: center;
+            font-size: 38px;
+            width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 公告區設定 */
+        .announcement {
+            background-color: rgba(0, 0, 0, 0);
+            padding: 10px;
+            margin-top: 10px;
+            text-align: start;
+            width: 320px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        /* 按鍵A設定 */
+        .link-containerA {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .link-containerA a {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #038a25;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* 按鍵B設定 */
+        .link-containerB {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .link-containerB a {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* 按鍵C設定 */
+        .link-containerC {
+            margin-top: 20px;
+            text-align: center;
+        }
+        .link-containerC a {
+            display: block;
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #ff00d4;
+            color: #fff;
+            text-decoration: none;
+        }
+
+        /* 日期時間顯示 */
+        .datetime {
+            margin-top: 10px;
+            font-size: 20px;
+            color: #333;
+        }
+
+        /* 行事曆和試算表的容器設定 */
+        .embed-container {
+            width: 100%; /* 使用百分比，使容器根據父元素自適應 */
+            max-width: 800px; /* 如果需要限制最大寬度，你可以設置一個最大寬度值 */
+            margin: 20px auto; /* 中央對齊，並添加一些邊距 */
+        }
+
+        /* 嵌入的 Google 行事曆和試算表設定 */
+        .embed-container iframe {
+            width: 100%; /* 使用百分比，使 iframe 根據容器自適應 */
+            height: 600px; /* 你可以設置固定的高度或使用其他相對單位 */
+            border: 0;
+        }
+
+        .calendar-container {
+            display: flex;
+            justify-content: space-between;
+        }
+        .calendar {
+            width: 30%; /* 調整每個日曆的寬度 */
+            margin: 0; /* 可以調整每個日曆之間的間距 */
+            padding: 10px; /* 添加內邊距，使背景色更明顯 */
+        }
+        /* 第一個日曆 */
+        .calendar:nth-child(1) {
+            background-color: #d7ffcb; /* 修改這裡的顏色 */
+        }
+        /* 第二個日曆 */
+        .calendar:nth-child(2) {
+            background-color: #cbd7ff; /* 修改這裡的顏色 */
+        }
+        /* 第三個日曆 */
+        .calendar:nth-child(3) {
+            background-color: #f58cff; /* 修改這裡的顏色 */
+        }
+        @media screen and (max-width: 1200px) {
+            /* 小於等於 800px 的裝置寬度時的樣式 */
+            .calendar-container {
+                display: none;
+            }
+
+            .embed-container {
+                display: block;
+            }
+        }
+
+        @media screen and (min-width: 1201px) {
+            /* 大於 800px 的裝置寬度時的樣式 */
+            .calendar-container {
+                width: 100%; /* 在較小的裝置上讓日曆佔滿寬度 */
+                margin: 0; /* 移除邊距 */
+                display: flex;
+            }
+
+            .embed-container {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- 圖片項目 -->
+    <!-- <img src="index.files/image001.png" alt="Image"> -->
+    <div class="title">
+        會議室使用登記📅
+    </div>
+    <!-- 日期時間顯示 -->
+    <div class="datetime" id="currentDatetime"></div>
+    <script>
+        // 使用 JavaScript 獲取當前日期和時間
+        function updateDatetime() {
+            const currentDatetime = new Date();
+            const formattedDatetime = currentDatetime.toLocaleString('zh-CN', {
+                year: 'numeric',
+                month: '2-digit',
+                day: '2-digit',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            });
+            document.getElementById('currentDatetime').innerText = formattedDatetime;
+        }
+        // 初始頁面時更新日期和時間
+        updateDatetime();
+        // 每秒更新一次日期和時間
+        setInterval(updateDatetime, 1000);
+    </script>
+    <div class="announcement">
+        📝若要編輯需登入google帳號，第一次使用請提供google帳號設定權限。
+    </div>
+    <!-- 按鍵C項目 -->
+    <div class="link-containerC">
+        <a href="https://calendar.google.com/calendar/u/0?cid=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com" target="_blank">小會議室使用登記</a>
+    </div>
+    <div class="embed-container">
+        <iframe src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+    </div>
+    <div class="link-containerC">
+        <a href="https://calendar.google.com/calendar/u/0?cid=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com" target="_blank">大會議室使用登記</a>
+    </div>
+    <div class="embed-container">
+        <iframe src="https://calendar.google.com/calendar/embed?src=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com&ctz=Asia%2FTaipei" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+    </div>
+    <div class="link-containerC">
+        <a href="https://calendar.google.com/calendar/u/0?cid=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com" target="_blank">二廠會議室使用登記</a>
+    </div>
+    <div class="embed-container">
+        <iframe src="https://calendar.google.com/calendar/embed?src=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com&ctz=Asia%2FTaipei" style="border: 0" width="800" height="600" frameborder="0" scrolling="no"></iframe>
+    </div>
+    <div class="calendar-container">
+        <!-- 第一個日曆 -->
+        <div class="calendar">
+            <iframe src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei" style="border: 0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
+        </div>
+
+        <!-- 第二個日曆 -->
+        <div class="calendar">
+            <iframe src="https://calendar.google.com/calendar/embed?src=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com&ctz=Asia%2FTaipei" style="border: 0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
+        </div>
+
+        <!-- 第三個日曆 -->
+        <div class="calendar">
+            <iframe src="https://calendar.google.com/calendar/embed?src=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com&ctz=Asia%2FTaipei" style="border: 0" width="100%" height="600" frameborder="0" scrolling="no"></iframe>
+        </div>
+    </div>
+    <div class="embed-container">
+        <!-- <iframe src="https://docs.google.com/spreadsheets/d/1djnEpSH5AZEWrV28m0PcbI_4gwOc5DRyROJesHN4y6M/pubhtml?widget=true&amp;range=A1:I22&amp;single=true" width="100%" height="600" frameborder="0" scrolling="yes"></iframe> -->
+        <!-- <iframe src="https://docs.google.com/spreadsheets/d/e/2PACX-1vRtIgEn_QF61Q5_wL2ynVwFX3wCmX9Z3yzPp-sobU7tKjK5eYmwobzZ0x4XPiUIcxfntGHAS2vBcK8h/pubhtml?widget=true&amp;headers=false"></iframe> -->
+    </div>
+</html>
