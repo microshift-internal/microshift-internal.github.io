@@ -17,7 +17,7 @@
 
         /* 圖像設定 */
         img {
-            max-width: 320px;
+            max-width: 800px;
             height: auto;
             margin-top: 20px;
             border: 2px solid rgb(175, 173, 173); /* 設置一個與背景顏色對比的邊框顏色 */
@@ -152,6 +152,13 @@
 
             .embed-container {
                 display: none;
+            }
+        }
+
+        /* 在視窗寬度小於800px時，調整圖片大小 */
+        @media screen and (max-width: 800px) {
+            img {
+                max-width: 100%; /* 讓圖片寬度自適應父容器寬度 */
             }
         }
     </style>
