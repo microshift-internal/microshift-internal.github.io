@@ -3,8 +3,17 @@ const csvFilePath = 'index.files/change_list.csv';
 
 // 運用fetch API讀取CSV檔案
 fetch(csvFilePath)
-    .then(response => response.text())
-    .then(csvData => {
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error! Status: ${response.status}`);
+        }
+        return response.arrayBuffer();
+    })
+    .then(buffer => {
+        // 使用TextDecoder解碼CSV檔案
+        const decoder = new TextDecoder('utf-8'); // 請根據你的CSV檔案實際編碼來修改
+        const csvData = decoder.decode(buffer);
+
         // 將CSV轉換為HTML表格
         const table = csvToHtmlTable(csvData);
 
