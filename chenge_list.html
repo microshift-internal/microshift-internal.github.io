@@ -1,39 +1,14 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Excel Viewer</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Change List Viewer</title>
 </head>
 <body>
-  <div id="output"></div>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.17.5/xlsx.full.min.js"></script>
-  <script>
-    var url = 'index.files/change_list.xlsx';
-    var xhr = new XMLHttpRequest();
-    xhr.open('GET', url, true);
-    xhr.responseType = 'arraybuffer';
+    <h1>Change List Viewer</h1>
+    <div id="csv-content"></div>
 
-    xhr.onload = function (e) {
-      var arraybuffer = xhr.response;
-      var data = new Uint8Array(arraybuffer);
-      var arr = [];
-
-      for (var i = 0; i !== data.length; ++i) {
-        arr[i] = String.fromCharCode(data[i]);
-      }
-
-      var bstr = arr.join('');
-      var workbook = XLSX.read(bstr, { type: 'binary' });
-      var firstSheet = workbook.SheetNames[0];
-      var worksheet = workbook.Sheets[firstSheet];
-
-      var html = XLSX.write(worksheet, { bookType: 'html', bookSST: true, type: 'string' });
-
-      document.getElementById('output').innerHTML = html;
-    };
-
-    xhr.send();
-  </script>
+    <script src="read_csv.js"></script>
 </body>
 </html>
