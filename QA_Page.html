@@ -32,6 +32,12 @@
             border-left: 3px solid #007BFF;
             background-color: #f9f9f9;
         }
+        /* 定義顏色 */
+        .color-f05c45 { color: #F05C45; font-size: xx-large;}
+        .color-f09a20 { color: #F09A20; font-size: xx-large;}
+        .color-76b12b { color: #76B12B; font-size: xx-large;}
+        .color-0000ff { color: #0000FF; font-size: xx-large;}
+        .color-000000 { color: #000000; font-size: xx-large;}
     </style>
 </head>
 <body>
@@ -44,7 +50,8 @@
         Q1.公司的位置圖/區域圖在哪?
     </div>
     <div class="answer">
-        公司平面圖/區域圖可以參考5S分區圖。
+        公司平面圖/區域圖可以參考5S分區圖。<br>
+        <img src="img/map1.png" alt="公司5S分配圖">
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
@@ -58,27 +65,40 @@
         Q3.公司的各種警示顏色代表什麼?
     </div>
     <div class="answer">
-        ■#F05C45 警示、不良、錯誤、緊急、延遲
-        ■#F09A20 風險、注意、進行中、近期、即期、變動
-        ■#76B12B 目標、優質、正常、完成、提前
-        ■#0000FF 重點、暫停
-        ■#000000 文字、穩定、常態、長期、穩固
-        以上規範公司一年會檢視一次，並視需求調整。
+        <div class="item">
+            <span class="icon color-f05c45">■ </span>#F05C45：警示、不良、錯誤、緊急、延遲
+        </div>
+        <div class="item">
+            <span class="icon color-f09a20">■ </span>#F09A20：風險、注意、進行中、近期、即期、變動
+        </div>
+        <div class="item">
+            <span class="icon color-76b12b">■ </span>#76B12B：目標、優質、正常、完成、提前
+        </div>
+        <div class="item">
+            <span class="icon color-0000ff">■ </span>#0000FF：重點、暫停
+        </div>
+        <div class="item">
+            <span class="icon color-000000">■ </span>#000000：文字、穩定、常態、長期、穩固
+        </div>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
         Q4.公司各部門的KPI與達成率為何?
     </div>
     <div class="answer">
-		https://app.powerbi.com/links/MCnapbIKrt?ctid=ddc26d15-68a9-40bf-9195-db34d847c676&pbi_source=linkShare&bookmarkGuid=1fabf660-952c-4a90-8c56-d84d37446b13
+		請參考
+        <a href="https://app.powerbi.com/view?r=eyJrIjoiOWYzODVjZjYtYjg2Yi00Y2FlLWFjNjUtYzc1MTEzODhkN2ExIiwidCI6ImRkYzI2ZDE1LTY4YTktNDBiZi05MTk1LWRiMzRkODQ3YzY3NiIsImMiOjEwfQ%3D%3D"
+        target="_blank">
+        線上圖表
+        </a>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
         Q5.開發部的KPI是什麼?
     </div>
     <div class="answer">
-        是什麼 怎麼算 與其他部門的關聯
-		每X更新一次，每年審視一次
+        是什麼 怎麼算 與其他部門的關聯<br>
+		每X更新一次，每年審視一次<br>
 		警戒線
     </div>
 
@@ -86,41 +106,41 @@
         Q6.開發入口網頁上有哪些表單?
     </div>
     <div class="answer">
-        1.開發月會進度表	每月更新
-		2.開發部專案進度	每週更新
-		3.新開模零件追蹤表	每週更新
-		4.CNC打樣治具排程表	即時更新
-		5.開發部待設變項目表	每週更新
-		6.開發部問題改善檢討與計畫	每週更新
-		7.microShift全球專利商標總表	即時更新
-		8.開發討論區	即時更新
+        1.開發月會進度表	每月更新<br>
+		2.開發部專案進度	每週更新<br>
+		3.新開模零件追蹤表	每週更新<br>
+		4.CNC打樣治具排程表	即時更新<br>
+		5.開發部待設變項目表	每週更新<br>
+		6.開發部問題改善檢討與計畫	每週更新<br>
+		7.microShift全球專利商標總表	即時更新<br>
+		8.開發討論區	即時更新<br>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
         Q7.如果我遇到(發現)問題可以怎麼辦?
     </div>
     <div class="answer">
-        1.可依據部門組織架構圖向上呈報詢問
-		2.可利用teams中的「開發討論區」提出問題
-		3.公司有「問題蒐集」線上表單可直接填寫
+        1.可依據部門組織架構圖向上呈報詢問<br>
+		2.可利用teams中的「開發討論區」提出問題<br>
+		3.公司有「問題蒐集」線上表單可直接填寫<br>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
         Q8.開發週會的執行事項有哪些?
     </div>
     <div class="answer">
-        1.布達公司公告、活動或消息
-		2.工作狀況或其他問題討論
-		3.若討論出結論會在teams「開發公告區」發布
+        1.布達公司公告、活動或消息<br>
+		2.工作狀況或其他問題討論<br>
+		3.若討論出結論會在teams「開發公告區」發布<br>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
         Q9.開發月會的執行事項有哪些?
     </div>
     <div class="answer">
-        1.追蹤各專案工作進度
-		2.工作或專案相關議題討論
-		3.將討論事項紀錄於「開發月會進度表」的每月備註欄位
+        1.追蹤各專案工作進度<br>
+		2.工作或專案相關議題討論<br>
+		3.將討論事項紀錄於「開發月會進度表」的每月備註欄位<br>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
@@ -128,7 +148,7 @@
     </div>
     <div class="answer">
         請依循公司共用資料夾(n2)>02_ISO文件>開發部 管理辦法>1.產品開發管理辦法
-		內部包含工作與開發準則。
+		內部包含工作與開發準則。<br>
 		若有執行上遇到問題或改善提案請參考「Q7.如果我遇到(發現)問題可以怎麼辦?」
     </div>
 
@@ -143,23 +163,23 @@
         Q12.當遇到問題可以用什麼方式處理?
     </div>
     <div class="answer">
-        可參考以下「8D」的問題處理方式(實際實施方式可參考線上表單「開發部問題改善檢討與計畫」)。
-			D1：選定主題與建立團隊
-			D2：描述問題與掌握現狀
-			D3：列出、選定與驗證暫時防堵措施
-			D4：列出、選定及驗證真因
-			D5：列出、選定及驗證永久對策
-			D6：執行永久對策及確認效果
-			D7：預防再發及標準化
-			D8：反省、恭賀團隊及規劃未來方向
+        可參考以下「8D」的問題處理方式(實際實施方式可參考線上表單「開發部問題改善檢討與計畫」)。<br>
+			D1：選定主題與建立團隊<br>
+			D2：描述問題與掌握現狀<br>
+			D3：列出、選定與驗證暫時防堵措施<br>
+			D4：列出、選定及驗證真因<br>
+			D5：列出、選定及驗證永久對策<br>
+			D6：執行永久對策及確認效果<br>
+			D7：預防再發及標準化<br>
+			D8：反省、恭賀團隊及規劃未來方向<br>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
         Q13.如何善用「開發討論區」與「開發公告區」?
     </div>
     <div class="answer">
-        1.當遇到問題或需要部門人員共同討論之議題時，可以到teams的「開發討論區」中提出議題，並與相關人員討論。
-		2.當有需布達之事項，或與部門同仁討論議題有結論時，可以到teams的「開發公告區」中將其清楚敘述，通知部門同仁。
+        1.當遇到問題或需要部門人員共同討論之議題時，可以到teams的「開發討論區」中提出議題，並與相關人員討論。<br>
+		2.當有需布達之事項，或與部門同仁討論議題有結論時，可以到teams的「開發公告區」中將其清楚敘述，通知部門同仁。<br>
     </div>
 
 </div>
