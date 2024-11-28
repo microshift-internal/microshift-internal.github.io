@@ -32,6 +32,24 @@
             border-left: 3px solid #007BFF;
             background-color: #f9f9f9;
         }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            border: 1px solid #000;
+            text-align: center;
+            padding: 8px;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+
         /* 定義顏色 */
         .color-f05c45 { color: #F05C45; font-size: xx-large;}
         .color-f09a20 { color: #F09A20; font-size: xx-large;}
@@ -106,14 +124,66 @@
         Q6.開發入口網頁上有哪些表單?
     </div>
     <div class="answer">
-        1.開發月會進度表	每月更新<br>
-		2.開發部專案進度	每週更新<br>
-		3.新開模零件追蹤表	每週更新<br>
-		4.CNC打樣治具排程表	即時更新<br>
-		5.開發部待設變項目表	每週更新<br>
-		6.開發部問題改善檢討與計畫	每週更新<br>
-		7.microShift全球專利商標總表	即時更新<br>
-		8.開發討論區	即時更新<br>
+        <table>
+            <thead>
+                <tr>
+                    <th>項次</th>
+                    <th>名稱</th>
+                    <th>說明</th>
+                    <th>更新頻率</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>1</td>
+                    <td>開發月會進度表</td>
+                    <td>開發月會時討論之內容與紀錄</td>
+                    <td>每月更新</td>
+                </tr>
+                <tr>
+                    <td>2</td>
+                    <td>開發部專案進度</td>
+                    <td>開發個專案之進度追蹤</td>
+                    <td>每週更新</td>
+                </tr>
+                <tr>
+                    <td>3</td>
+                    <td>新開模零件追蹤表</td>
+                    <td>各專案需求之開模零件追蹤</td>
+                    <td>每週更新</td>
+                </tr>
+                <tr>
+                    <td>4</td>
+                    <td>CNC打樣治具排程表</td>
+                    <td>與CNC部門協調需求之排程表</td>
+                    <td>即時更新</td>
+                </tr>
+                <tr>
+                    <td>5</td>
+                    <td>開發部待設變項目表</td>
+                    <td>與生管部門協調設變項目之清單</td>
+                    <td>每週更新</td>
+                </tr>
+                <tr>
+                    <td>6</td>
+                    <td>開發部問題改善檢討與計畫</td>
+                    <td>日常問題討論與追蹤</td>
+                    <td>每週更新</td>
+                </tr>
+                <tr>
+                    <td>7</td>
+                    <td>microShift全球專利商標總表</td>
+                    <td>公司各項專利與商標清單</td>
+                    <td>即時更新</td>
+                </tr>
+                <tr>
+                    <td>8</td>
+                    <td>開發討論區</td>
+                    <td>開發內部的teams的討論區</td>
+                    <td>即時更新</td>
+                </tr>
+            </tbody>
+        </table>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
