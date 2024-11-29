@@ -33,6 +33,14 @@
             background-color: #f9f9f9;
         }
 
+        /* 圖像設定 */
+        img {
+            max-width: 100%; /* 圖片寬度不會超過容器 */
+            height: auto;    /* 按比例縮放高度 */
+            display: block;  /* 去除 inline 元素導致的間距 */
+            margin-top: 20px; /* 與上方內容的距離 */
+        }
+
         table {
             width: 100%;
             border-collapse: collapse;
@@ -101,7 +109,15 @@
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q4.公司各部門的KPI與達成率為何?
+        Q4.開發部的組織架構為何? 我的工作代理人是誰?
+    </div>
+    <div class="answer">
+		請參考開發部組織架構圖<br>
+        <img src="img/TeamMap.jpg" alt="開發部組織架構圖">
+    </div>
+
+    <div class="question" onclick="toggleAnswer(this)">
+        Q5.公司各部門的KPI與達成率為何?
     </div>
     <div class="answer">
 		請參考
@@ -112,7 +128,7 @@
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q5.開發部的KPI是什麼?
+        Q6.開發部的KPI是什麼?
     </div>
     <div class="answer">
         是什麼 怎麼算 與其他部門的關聯<br>
@@ -121,7 +137,7 @@
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q6.開發入口網頁上有哪些表單?
+        Q7.開發入口網頁上有哪些表單?
     </div>
     <div class="answer">
         <table>
@@ -187,16 +203,20 @@
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q7.如果我遇到(發現)問題可以怎麼辦?
+        Q8.如果我遇到(發現)問題可以怎麼辦?
     </div>
     <div class="answer">
         1.可依據部門組織架構圖向上呈報詢問<br>
-		2.可利用teams中的「開發討論區」提出問題<br>
-		3.公司有「問題蒐集」線上表單可直接填寫<br>
+		2.可利用teams中的「開發討論區」提出問題，問題會在 <a href="https://microshiftcomtw.sharepoint.com/:x:/s/microSHIFT/EUdZBfys8aNPsl5MVzASIioBy6B_41vdag4_7FjFvhrAgg?e=10WNbV"
+        target="_blank">開發部問題改善檢討與計畫</a>
+        中記錄並追蹤<br>
+		3.公司有「問題蒐集」線上表單可直接填寫，且會有 <a href="https://app.powerbi.com/view?r=eyJrIjoiNGI4NzJlOTItMTdmZC00NDE0LTkzYzktNjgwNzRiZGVlMDEzIiwidCI6ImRkYzI2ZDE1LTY4YTktNDBiZi05MTk1LWRiMzRkODQ3YzY3NiIsImMiOjEwfQ%3D%3D"
+        target="_blank">追蹤清單</a>
+        可確認處理進<br>
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q8.開發週會的執行事項有哪些?
+        Q9.開發週會的執行事項有哪些?
     </div>
     <div class="answer">
         1.布達公司公告、活動或消息<br>
@@ -205,7 +225,7 @@
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q9.開發月會的執行事項有哪些?
+        Q10.開發月會的執行事項有哪些?
     </div>
     <div class="answer">
         1.追蹤各專案工作進度<br>
@@ -214,7 +234,7 @@
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q10.工作/開發流程可參考什麼?
+        Q11.工作/開發流程可參考什麼?
     </div>
     <div class="answer">
         請依循公司共用資料夾(n2)>02_ISO文件>開發部 管理辦法>1.產品開發管理辦法
@@ -223,14 +243,14 @@
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q11.專案管理內容有哪些?
+        Q12.專案管理內容有哪些?
     </div>
     <div class="answer">
         專案管理師將每週追蹤個專案進度與排成，若有發現進度異常(落後)，則會提出並與產品負責人及相關主管討論，擬定後續改善措施或調整執行方式。
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q12.當遇到問題可以用什麼方式處理?
+        Q13.當遇到問題可以用什麼方式處理?
     </div>
     <div class="answer">
         可參考以下「8D」的問題處理方式(實際實施方式可參考線上表單「開發部問題改善檢討與計畫」)。<br>
@@ -245,7 +265,7 @@
     </div>
 
     <div class="question" onclick="toggleAnswer(this)">
-        Q13.如何善用「開發討論區」與「開發公告區」?
+        Q14.如何善用「開發討論區」與「開發公告區」?
     </div>
     <div class="answer">
         1.當遇到問題或需要部門人員共同討論之議題時，可以到teams的「開發討論區」中提出議題，並與相關人員討論。<br>
