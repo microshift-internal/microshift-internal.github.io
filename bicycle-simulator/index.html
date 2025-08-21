@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bicycle Gear Simulator</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="simulator-container">
+        <h1>Bicycle Gear Simulator</h1>
+        
+        <div class="gear-display">
+            <p>Front: <span id="front-gear-display">1</span></p>
+            <p>Rear: <span id="rear-gear-display">1</span></p>
+        </div>
+
+        <div class="visual-display">
+            <div class="chainrings">
+                <h2>Front Chainrings</h2>
+                <div id="front-gears-visual"></div>
+            </div>
+            <div class="cassette">
+                <h2>Rear Cassette</h2>
+                <div id="rear-gears-visual"></div>
+            </div>
+        </div>
+
+        <div class="settings">
+            <h3>Settings</h3>
+            <div class="setting-row">
+                <label for="continuous-shift-toggle">Continuous Shifting</label>
+                <label class="switch">
+                    <input type="checkbox" id="continuous-shift-toggle" checked>
+                    <span class="slider"></span>
+                </label>
+            </div>
+            <div class="setting-row" id="max-shift-setting">
+                <label for="max-shift-input">Max Shifts per Hold</label>
+                <input type="number" id="max-shift-input" value="5" min="1" max="11">
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="shifter">
+                <h3>Front Shifter</h3>
+                <button id="front-down-button">Shift Down</button>
+                <button id="front-up-button">Shift Up</button>
+            </div>
+            <div class="shifter">
+                <h3>Rear Shifter</h3>
+                <button id="rear-down-button">Shift Down</button>
+                <button id="rear-up-button">Shift Up</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</body>
+</html>

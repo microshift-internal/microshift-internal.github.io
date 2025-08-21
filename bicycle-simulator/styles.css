@@ -1,0 +1,186 @@
+body {
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+}
+
+.simulator-container {
+    background: #ffffff;
+    padding: 2rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    text-align: center;
+    width: 90%;
+    max-width: 600px;
+}
+
+h1 {
+    margin-top: 0;
+    color: #1c1e21;
+}
+
+.gear-display {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin: 1.5rem 0;
+    padding: 1rem;
+    background-color: #f7f7f7;
+    border-radius: 8px;
+}
+
+.gear-display span {
+    color: #007bff;
+}
+
+.visual-display {
+    display: flex;
+    justify-content: space-around;
+    margin-bottom: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid #ddd;
+}
+
+.chainrings, .cassette {
+    width: 45%;
+}
+
+#front-gears-visual, #rear-gears-visual {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    flex-wrap: wrap;
+}
+
+.gear-cog {
+    background-color: #ccc;
+    border: 2px solid #999;
+    border-radius: 50%;
+    transition: all 0.2s ease-in-out;
+}
+
+.gear-cog.active {
+    background-color: #007bff;
+    border-color: #0056b3;
+    transform: scale(1.1);
+}
+
+.settings {
+    padding: 1rem 0;
+    margin-top: 1.5rem;
+    border-top: 1px solid #ddd;
+    border-bottom: 1px solid #ddd;
+}
+
+.setting-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 0.75rem auto;
+    max-width: 300px;
+}
+
+.setting-row label {
+    font-weight: 500;
+}
+
+#max-shift-input {
+    width: 60px;
+    padding: 5px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    text-align: center;
+}
+
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 28px;
+}
+
+.switch input { 
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    transition: .4s;
+    border-radius: 28px;
+}
+
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    transition: .4s;
+    border-radius: 50%;
+}
+
+input:checked + .slider {
+    background-color: #007bff;
+}
+
+input:checked + .slider:before {
+    transform: translateX(22px);
+}
+
+.hidden {
+    display: none;
+}
+
+.controls {
+    display: flex;
+    justify-content: center;
+    gap: 2rem;
+    border-top: 1px solid #ddd;
+    padding-top: 2rem;
+}
+
+.shifter {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+button {
+    padding: 0.8rem 1.5rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+    background-color: #e4e6eb;
+    color: #333;
+}
+
+button:hover {
+    background-color: #d8dbdf;
+}
+
+button:active {
+    transform: scale(0.98);
+    background-color: #cdd1d5;
+}
