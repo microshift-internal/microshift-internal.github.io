@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+    <!-- 設定文檔字符編碼為 UTF-8，確保多語言字符正確顯示 -->
+    <meta charset="UTF-8">
+    <!-- 配置視口，使網頁在不同設備上響應式顯示 -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- 頁面標題，顯示在瀏覽器標籤頁或窗口標題欄 -->
+    <title>LED 行為模擬 (優化版)</title>
+    <style>
+        /* 頁面整體樣式設定 */
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f0f2f5; /* 淺灰色背景 */
+            color: #333; /* 主要文字顏色 */
+            margin: 0;
+            padding: 20px;
+        }
+        /* 主標題樣式 */
+        h1 {
+            text-align: center;
+            color: #1a237e; /* 深藍色標題 */
+        }
+        /* 容器樣式，用於佈局 LED 相關元素 */
+        .container {
+            display: flex;
+            flex-direction: column;
+            gap: 10px; /* 元素間距 */
+            max-width: 800px;
+            margin: 20px auto; /* 居中顯示 */
+        }
+        /* LED 詳細資訊區塊樣式 (使用 <details> 元素) */
+        .led-details {
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05); /* 輕微陰影 */
+            transition: box-shadow 0.2s; /* 陰影過渡效果 */
+        }
+        /* 當 details 展開時的陰影效果 */
+        .led-details[open] {
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        }
+        /* LED 摘要行樣式 (使用 <summary> 元素) */
+        .led-summary {
+            padding: 15px 20px;
+            cursor: pointer; /* 鼠標變為手型 */
+            font-weight: bold;
+            font-size: 1.2em;
+            list-style: none; /* 隱藏預設的標記 */
+        }
+        /* 隱藏 Chrome/Safari 瀏覽器中 summary 元素的預設標記 */
+        .led-summary::-webkit-details-marker {
+            display: none;
+        }
+        /* 為 summary 元素添加自定義的展開/收起箭頭 */
+        .led-summary::before {
+            content: '►'; /* 箭頭圖示 */
+            margin-right: 10px;
+            font-size: 0.8em;
+            transition: transform 0.2s; /* 箭頭旋轉過渡效果 */
+        }
+        /* 當 details 展開時，旋轉箭頭 */
+        .led-details[open] > .led-summary::before {
+            transform: rotate(90deg);
+        }
+        /* LED 內容區塊樣式 */
+        .led-content {
+            padding: 0px 20px 20px 40px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        /* LED 描述文字區塊樣式 */
+        .led-description {
+             flex-grow: 1; /* 佔據可用空間 */
+        }
+        .led-description p {
+            margin: 0;
+            color: #666;
+            font-size: 0.9em;
+        }
+        /* LED 指示燈視覺樣式 */
+        .led-light {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%; /* 圓形 */
+            background-color: #222; /* 關閉狀態的顏色 */
+            border: 3px solid #fff; /* 白色邊框 */
+            box-shadow: 0 0 10px rgba(0,0,0,0.2) inset; /* 內部陰影，模擬立體感 */
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-shrink: 0; /* 不壓縮 */
+            margin-left: 20px;
+        }
+        /* LED 燈內部的高光效果，模擬反光 */
+        .led-light::before {
+            content: '';
+            position: absolute;
+            top: 4px;
+            left: 12px;
+            width: 15px;
+            height: 8px;
+            background: rgba(255, 255, 255, 0.4); /* 半透明白色 */
+            border-radius: 10px / 5px; /* 橢圓形 */
+            transform: rotate(45deg); /* 旋轉角度 */
+        }
+        /* 播放按鈕樣式 */
+        .play-button {
+            padding: 8px 16px;
+            border: none;
+            background-color: #007bff; /* 藍色背景 */
+            color: white;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 0.9em;
+            margin-right: 15px;
+            transition: background-color 0.2s; /* 背景色過渡效果 */
+        }
+        /* 按鈕鼠標懸停效果 */
+        .play-button:hover {
+            background-color: #0056b3;
+        }
+        /* 按鈕禁用狀態樣式 */
+        .play-button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
+        }
+
+        /* --- 動畫定義 --- */
+        /* 修改：所有閃爍動畫都改為控制 background-color，確保滅的時候是黑色(#222) */
+        /* 亮的顏色由 JavaScript 通過 CSS 變數 --led-color 提供 */
+        @keyframes blink-500-1500 {
+            0%, 25% { background-color: var(--led-color); }
+            25.1%, 100% { background-color: #222; }
+        }
+        @keyframes blink-300-300-x2 {
+            0%, 25% { background-color: var(--led-color); }
+            25.1%, 50% { background-color: #222; }
+            50.1%, 75% { background-color: var(--led-color); }
+            75.1%, 100% { background-color: #222; }
+        }
+        @keyframes blink-100-100-x4 {
+            0%, 6.25% { background-color: var(--led-color); } 6.26%, 12.5% { background-color: #222; }
+            12.51%, 18.75% { background-color: var(--led-color); } 18.76%, 25% { background-color: #222; }
+            25.01%, 31.25% { background-color: var(--led-color); } 31.26%, 37.5% { background-color: #222; }
+            37.51%, 43.75% { background-color: var(--led-color); } 43.76%, 100% { background-color: #222; }
+        }
+        /* 藍紅交替閃爍動畫 (總週期 1.6s) */
+        @keyframes blink-blue-red-200 {
+            0%, 12.5% { background-color: var(--color-1); }
+            12.51%, 25% { background-color: #222; }
+            25.01%, 37.5% { background-color: var(--color-2); }
+            37.51%, 50% { background-color: #222; }
+            50.01%, 62.5% { background-color: var(--color-1); }
+            62.51%, 75% { background-color: #222; }
+            75.01%, 87.5% { background-color: var(--color-2); }
+            87.51%, 100% { background-color: #222; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- 頁面主標題 -->
+    <h1>燈號模擬</h1>
+    <div class="container">
+        <!-- 單一 LED 顯示區，用於按鈕觸發的單次模擬 -->
+        <div class="led-content" style="justify-content: center; padding-bottom: 20px;">
+             <div class="led-light" id="single-led" style="width: 80px; height: 80px;"></div>
+        </div>
+        <!-- 單一 LED 的控制按鈕區 -->
+        <div id="single-led-buttons">
+            <!-- 按鈕將依據 user-story 動態分組加入 -->
+            <div class="button-row" id="button-row-1" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 10px;"></div>
+            <div class="button-row" id="button-row-2" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 10px;"></div>
+            <div class="button-row" id="button-row-3" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 10px;"></div>
+            <div class="button-row" id="button-row-4" style="display: flex; flex-wrap: wrap; gap: 10px; justify-content: center;"></div>
+        </div>
+    </div>
+
+    <hr style="margin-top: 40px; margin-bottom: 40px;">
+
+    <!-- 狀態燈號清單區塊標題 -->
+    <h1>狀態燈號清單</h1>
+    <!-- 動態生成 LED 卡片的容器 -->
+    <div class="container" id="led-list-container">
+        <!-- LED cards will be dynamically inserted here -->
+    </div>
+
+
+    <script>
+        // --- 除錯開關 ---
+        // 設定為 true 來在瀏覽器控制台開啟詳細日誌
+        const DEBUG = false;
+
+        // --- 資料定義區 ---
+        const ledBehaviors = [
+            { name: '進入配對模式',       color: '藍',          isLoop: true,  pattern: '亮500ms滅1500ms' },
+            { name: '配對完成',       color: '藍',          isLoop: false, pattern: '亮300ms滅300ms亮300ms滅300ms' },
+            { name: '配對失敗',       color: '藍+紅',       isLoop: false, pattern: '藍亮200ms滅200ms紅亮200ms滅200ms藍亮200ms滅200ms紅亮200ms滅200ms' },
+            { name: '進入調整模式',   color: '綠',          isLoop: true,  pattern: '恆亮' },
+            { name: '調整+/-指令',   color: '綠',          isLoop: false, pattern: '滅500ms恆亮' },
+            { name: '調整歸零',       color: '綠',          isLoop: false, pattern: '滅300ms亮300ms滅300ms亮300ms' },
+            { name: '離開調整模式',   color: '綠',          isLoop: false, pattern: '滅' },
+            { name: '後變電源電壓過低1', color: '紅',          isLoop: false, pattern: '亮300ms滅300ms亮300ms滅300ms' },
+            { name: '後變電壓過低2', color: '紅',          isLoop: false, pattern: '亮100ms滅100ms亮100ms滅100ms亮100ms滅100ms亮100ms滅100ms' },
+            { name: '錯誤/運作異常',   color: '紫(紅+藍)',   isLoop: false, pattern: '亮300ms滅300ms亮300ms滅300ms' },
+            { name: '更新模式',       color: '白(紅+綠+藍)', isLoop: true,  pattern: '亮500ms滅1500ms' },
+            { name: '更新完成',       color: '白(紅+綠+藍)', isLoop: false, pattern: '滅' },
+            { name: 'BLE模式',        color: '青(綠+藍)',   isLoop: true,  pattern: '亮500ms滅1500ms' },
+            { name: '關閉BLE模式',    color: '青(綠+藍)',   isLoop: false, pattern: '滅' }
+        ];
+
+        const colorMap = {
+            '藍': '#007bff', '紅': '#dc3545', '綠': '#28a745',
+            '紫(紅+藍)': '#800080', '白(紅+綠+藍)': '#ffffff', '青(綠+藍)': '#00ffff'
+        };
+
+        const patternToAnimation = {
+            '亮500ms滅1500ms': { name: 'blink-500-1500', duration: '2s' },
+            '亮300ms滅300ms亮300ms滅300ms': { name: 'blink-300-300-x2', duration: '1.2s' },
+            '亮100ms滅100ms亮100ms滅100ms亮100ms滅100ms亮100ms滅100ms': { name: 'blink-100-100-x4', duration: '1.6s' },
+            '滅300ms亮300ms滅300ms亮300ms': { name: 'blink-300-300-x2', duration: '1.2s', direction: 'reverse' },
+            '藍亮200ms滅200ms紅亮200ms滅200ms藍亮200ms滅200ms紅亮200ms滅200ms': { 
+                name: 'blink-blue-red-200', duration: '1.6s', colors: [colorMap['藍'], colorMap['紅']] 
+            }
+        };
+
+        // --- DOM 元素與狀態管理 ---
+        const singleLed = document.getElementById('single-led');
+        const listContainer = document.getElementById('led-list-container');
+        const buttonRow1 = document.getElementById('button-row-1');
+        const buttonRow2 = document.getElementById('button-row-2');
+        const buttonRow3 = document.getElementById('button-row-3');
+        const buttonRow4 = document.getElementById('button-row-4');
+        
+        const allControlButtons = [];
+        let appState = 'IDLE'; // 可能的狀態: 'IDLE', 'PAIRING', 'ADJUSTING', 'UPDATING', 'BLE_MODE'
+
+        /**
+         * 根據應用程式狀態更新所有按鈕的可操作性
+         */
+        function updateButtonStates(newState) {
+            if (DEBUG) console.log(`%c[狀態更新] 新狀態: ${newState}`, 'color: purple; font-weight: bold;', `(前一狀態: ${appState})`);
+            appState = newState;
+            
+            allControlButtons.forEach(button => {
+                const buttonName = button.textContent;
+                let isEnabled = false;
+
+                if (appState === 'IDLE') {
+                    isEnabled = true;
+                } else if (appState === 'PAIRING') {
+                    if (buttonName === '配對完成' || buttonName === '配對失敗') isEnabled = true;
+                } else if (appState === 'ADJUSTING') {
+                    if (buttonName === '調整+/-指令' || buttonName === '調整歸零' || buttonName === '離開調整模式') isEnabled = true;
+                } else if (appState === 'UPDATING') {
+                    if (buttonName === '更新完成') isEnabled = true;
+                } else if (appState === 'BLE_MODE') {
+                    if (buttonName === '關閉BLE模式') isEnabled = true;
+                }
+                if (DEBUG) console.log(`  處理按鈕: "${buttonName}", 設定為啟用: ${isEnabled}`);
+                button.disabled = !isEnabled;
+            });
+        }
+
+        /**
+         * 重置 LED 元素的所有動畫和定時器。
+         */
+        function resetLedState(element) {
+            element.style.animation = '';
+            element.style.backgroundColor = '#222';
+            if (element.timeoutId) clearTimeout(element.timeoutId);
+        }
+
+        /**
+         * 應用 LED 行為，並在結束時更新應用程式狀態
+         * @param {HTMLElement} element - LED 燈的 DOM 元素
+         * @param {object} behavior - 包含 LED 行為配置的物件
+         * @param {boolean} isMainControl - 是否為主控制按鈕的呼叫，以決定是否觸發狀態管理
+         */
+        function applyLedBehavior(element, behavior, isMainControl = false) {
+            if (DEBUG && isMainControl) console.log(`%c[行為觸發] 名稱: "${behavior.name}"`, 'font-weight: bold');
+            
+            if (isMainControl) {
+                allControlButtons.forEach(btn => btn.disabled = true);
+            }
+            
+            resetLedState(element);
+
+            // Bugfix：使用微小延遲來確保瀏覽器有時間處理樣式重置，從而穩定觸發 animationend 事件
+            setTimeout(() => {
+                const { color, pattern, isLoop } = behavior;
+                const animation = patternToAnimation[pattern];
+                const baseColor = colorMap[color] || '#222';
+                
+                const onCompletion = () => {
+                    if (!isMainControl) return;
+
+                    let nextState = 'IDLE'; 
+                    const currentBehaviorName = behavior.name;
+
+                    if (currentBehaviorName === '進入配對模式') nextState = 'PAIRING';
+                    else if (currentBehaviorName === '進入調整模式') nextState = 'ADJUSTING';
+                    else if (currentBehaviorName === '更新模式') nextState = 'UPDATING';
+                    else if (currentBehaviorName === 'BLE模式') nextState = 'BLE_MODE';
+                    else if (appState === 'ADJUSTING' && currentBehaviorName !== '離開調整模式') nextState = 'ADJUSTING';
+                    
+                    if (DEBUG) console.log(`%c[完成回呼] 計算出下一個狀態: ${nextState}`, 'color: blue;');
+                    updateButtonStates(nextState);
+                };
+
+                const onAnimationEnd = () => {
+                    if (DEBUG) console.log(`%c[動畫結束] 動畫: "${animation ? animation.name : '未知'}" 播放完畢`, 'color: green;');
+                    if (behavior.name === '配對完成') element.style.backgroundColor = baseColor;
+                    element.removeEventListener('animationend', onAnimationEnd);
+                    onCompletion();
+                };
+
+                if (animation && !isLoop) {
+                    element.addEventListener('animationend', onAnimationEnd);
+                    
+                    if (animation.colors) {
+                        element.style.setProperty('--color-1', animation.colors[0]);
+                        element.style.setProperty('--color-2', animation.colors[1]);
+                    } else {
+                        element.style.setProperty('--led-color', baseColor);
+                    }
+                    element.style.animation = `${animation.name} ${animation.duration} 1 forwards ${animation.direction || ''}`;
+                
+                } else if (pattern.includes('恆亮')) {
+                    const delay = pattern.startsWith('滅') ? parseInt(pattern.match(/\d+/)[0]) : 0;
+                    element.timeoutId = setTimeout(() => {
+                        element.style.backgroundColor = baseColor;
+                        onCompletion();
+                    }, delay);
+
+                } else if (pattern === '滅') {
+                    onCompletion();
+                
+                } else if (isLoop) {
+                    if (animation) {
+                        element.style.setProperty('--led-color', baseColor);
+                        element.style.animation = `${animation.name} ${animation.duration} infinite`;
+                    } else { 
+                         element.style.backgroundColor = baseColor;
+                    }
+                    onCompletion();
+                }
+            }, 10); // 使用 10ms 延遲確保穩定性
+        }
+        
+        // --- 動態生成 UI ---
+        ledBehaviors.forEach((behavior, index) => {
+            const details = document.createElement('details');
+            details.className = 'led-details';
+            if (index === 0) details.open = true;
+
+            const summary = document.createElement('summary');
+            summary.className = 'led-summary';
+            summary.textContent = behavior.name;
+
+            const content = document.createElement('div');
+            content.className = 'led-content';
+
+            const description = document.createElement('div');
+            description.className = 'led-description';
+            description.innerHTML = `<p>${behavior.pattern}</p>`;
+
+            const light = document.createElement('div');
+            light.className = 'led-light';
+
+            content.appendChild(description);
+
+            if (!behavior.isLoop) {
+                const playBtn = document.createElement('button');
+                playBtn.className = 'play-button';
+                playBtn.textContent = '播放一次';
+                playBtn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    // 列表內的播放按鈕，不觸發主狀態管理
+                    applyLedBehavior(light, behavior, false);
+                });
+                content.appendChild(playBtn);
+            }
+            
+            content.appendChild(light);
+            details.appendChild(summary);
+            details.appendChild(content);
+            listContainer.appendChild(details);
+
+            if (behavior.isLoop) {
+                details.addEventListener('toggle', (e) => {
+                    if (details.open) {
+                        const anim = patternToAnimation[behavior.pattern];
+                        if (anim) {
+                            light.style.setProperty('--led-color', colorMap[behavior.color]);
+                            light.style.animation = `${anim.name} ${anim.duration} infinite`;
+                        } else {
+                            light.style.backgroundColor = colorMap[behavior.color];
+                        }
+                    } else {
+                        resetLedState(light);
+                    }
+                });
+            }
+            
+            const controlButton = document.createElement('button');
+            controlButton.className = 'play-button';
+            controlButton.textContent = behavior.name;
+            // 主控制按鈕，觸發主狀態管理
+            controlButton.addEventListener('click', () => applyLedBehavior(singleLed, behavior, true));
+            
+            allControlButtons.push(controlButton);
+
+            const name = behavior.name;
+            if (name === '進入配對模式' || name === '配對完成' || name === '配對失敗') {
+                buttonRow1.appendChild(controlButton);
+            } else if (name === '進入調整模式' || name === '調整+/-指令' || name === '調整歸零' || name === '離開調整模式') {
+                buttonRow2.appendChild(controlButton);
+            } else if (name === 'BLE模式' || name === '關閉BLE模式' || name === '更新模式' || name === '更新完成') {
+                buttonRow3.appendChild(controlButton);
+            } else {
+                buttonRow4.appendChild(controlButton);
+            }
+        });
+
+    </script>
+</body>
+</html>
