@@ -1,0 +1,931 @@
+
+​<!doctype html>
+<html lang="zh-TW" class="h-full">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>廠商搜尋系統（開發內部用）</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.min.js"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;600;700&amp;display=swap" rel="stylesheet">
+  <style>
+    body {
+      box-sizing: border-box;
+    }
+    * {
+      font-family: 'Noto Sans TC', sans-serif;
+    }
+    .table-container {
+      overflow-x: auto;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 900px;
+    }
+    th, td {
+      border: 1px solid #d1d5db;
+      padding: 10px 12px;
+      text-align: left;
+      font-size: 14px;
+    }
+    th {
+      background-color: #f3f4f6;
+      font-weight: 600;
+      color: #1f2937;
+      white-space: nowrap;
+    }
+    td {
+      background-color: #ffffff;
+    }
+    td[contenteditable="true"]:focus {
+      outline: 2px solid #3b82f6;
+      outline-offset: -2px;
+      background-color: #eff6ff;
+    }
+    tr:hover td {
+      background-color: #f9fafb;
+    }
+    tr.hidden {
+      display: none;
+    }
+    .nav-btn {
+      transition: all 0.2s ease;
+    }
+    .nav-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+    .section-anchor {
+      scroll-margin-top: 20px;
+    }
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background-color: #10b981;
+      color: white;
+      padding: 16px 24px;
+      border-radius: 8px;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+      animation: slideIn 0.3s ease;
+      z-index: 9999;
+    }
+    .toast.error {
+      background-color: #ef4444;
+    }
+    @keyframes slideIn {
+      from {
+        transform: translateX(400px);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+ </head>
+ <body class="h-full bg-gray-50 text-gray-800">
+  <div class="h-full w-full overflow-auto" id="app-wrapper"><!-- Header Section -->
+   <header class="bg-white border-b-4 border-blue-600 shadow-sm">
+    <div class="max-w-7xl mx-auto px-4 py-8">
+     <div class="flex items-center gap-3 mb-6">
+      <div class="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">
+       <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"></path>
+       </svg>
+      </div>
+      <div>
+       <h1 id="main-title" class="text-2xl md:text-3xl font-bold text-gray-900">廠商搜尋系統（開發內部用）</h1>
+       <p id="subtitle" class="text-gray-600 text-base mt-1">集中管理廠商資訊，提供快速查詢與共同維護</p>
+      </div>
+     </div><!-- Search Bar -->
+     <div class="flex gap-3 items-center"><input id="search-input" type="text" placeholder="🔍 輸入廠商名稱、聯絡人、電話、地址...即時搜尋" class="flex-1 px-4 py-3 bg-white border-2 border-blue-300 rounded-lg text-gray-800 placeholder-gray-500 focus:outline-none focus:border-blue-500 shadow-sm"> <button onclick="document.getElementById('excel-input').click()" class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-3 rounded-lg font-medium transition flex items-center gap-2 whitespace-nowrap shadow-sm">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10"></path>
+       </svg> 📥 導入 Excel </button> <input type="file" id="excel-input" accept=".xlsx,.xls,.csv" style="display: none;" onchange="handleExcelImport(event)">
+     </div>
+    </div>
+   </header><!-- Usage Guide -->
+   <div class="max-w-7xl mx-auto px-4 mt-6">
+    <div class="bg-blue-50 border border-blue-200 rounded-lg p-5">
+     <h3 class="font-semibold text-blue-800 mb-3 flex items-center gap-2">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+      </svg> 使用方式</h3>
+     <ul class="space-y-2 text-blue-700 text-sm">
+      <li class="flex items-start gap-2"><span class="text-blue-500 mt-0.5">▸</span> 在上方搜尋框輸入關鍵字即時查詢廠商</li>
+      <li class="flex items-start gap-2"><span class="text-blue-500 mt-0.5">▸</span> <strong>新增廠商：</strong>直接在表格新增一列</li>
+      <li class="flex items-start gap-2"><span class="text-blue-500 mt-0.5">▸</span> <strong>導入 Excel：</strong>點擊「📥 導入 Excel」按鈕上傳檔案</li>
+      <li class="flex items-start gap-2"><span class="text-blue-500 mt-0.5">▸</span> <strong>更新資料：</strong>補充於「名 稱 / 雜 記」欄位註明日期與姓名</li>
+     </ul>
+    </div>
+   </div><!-- Category Navigation -->
+   <div class="max-w-7xl mx-auto px-4 mt-8">
+    <div class="bg-white rounded-lg shadow-sm border border-gray-200 p-5">
+     <h3 class="font-semibold text-gray-800 mb-4 flex items-center gap-2">
+      <svg class="w-5 h-5 text-gray-600" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"></path>
+      </svg> 分類快速導覽</h3>
+     <div class="flex flex-wrap gap-2"><a href="#cat-general" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">總公司/主要</a> <a href="#cat-stamping" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">沖製廠</a> <a href="#cat-facility" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">二廠/設施</a> <a href="#cat-landlord" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">房東</a> <a href="#cat-utilities" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">水電</a> <a href="#cat-demolition" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">清運/切割</a> <a href="#cat-services" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">保全/電信</a> <a href="#cat-parts" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">零件/模具</a> <a href="#cat-processing" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">CNC/加工</a> <a href="#cat-surface" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">表面處理</a> <a href="#cat-heat" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">熱處理</a> <a href="#cat-turning-milling" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">車削、銑床(加工)</a> <a href="#cat-plastic-material" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">塑膠料</a> <a href="#cat-turning-milling-equipment" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">車削、銑床(設備)</a> <a href="#cat-iron-material" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">鐵材</a> <a href="#cat-plastic-injection" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">塑膠射出類</a> <a href="#cat-oil-seal" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">油封</a> <a href="#cat-automation" class="nav-btn bg-gray-100 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg text-sm font-medium text-gray-700 border border-gray-300">自動化設備</a>
+     </div>
+    </div>
+   </div><!-- Vendor Tables Section -->
+   <div class="max-w-7xl mx-auto px-4 mt-8 pb-8 space-y-8"><!-- 總公司/主要 -->
+    <section id="cat-general" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-blue-400 rounded-full"></span> 總公司/主要</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true">總公司</td>
+         <td contenteditable="true">台灣微轉</td>
+         <td contenteditable="true">公司</td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true">04-25629669</td>
+         <td contenteditable="true">04-25628518</td>
+         <td contenteditable="true">台中市神岡區中山路1313-6號</td>
+        </tr>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 沖製廠 -->
+    <section id="cat-stamping" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-green-400 rounded-full"></span> 沖製廠</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true">沖製廠</td>
+         <td contenteditable="true">台灣微轉</td>
+         <td contenteditable="true">呂昇濱</td>
+         <td contenteditable="true">0919-684369</td>
+         <td contenteditable="true">04-26201196</td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true">台中市清水區神清路 86-9 號</td>
+        </tr>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 二廠/設施 -->
+    <section id="cat-facility" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-red-400 rounded-full"></span> 二廠/設施</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 房東 -->
+    <section id="cat-landlord" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-yellow-400 rounded-full"></span> 房東</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 水電 -->
+    <section id="cat-utilities" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-purple-400 rounded-full"></span> 水電</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 清運/切割 -->
+    <section id="cat-demolition" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-cyan-400 rounded-full"></span> 清運/切割</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 保全/電信 -->
+    <section id="cat-services" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-orange-400 rounded-full"></span> 保全/電信</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 零件/模具 -->
+    <section id="cat-parts" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-pink-400 rounded-full"></span> 零件/模具</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- CNC/加工 -->
+    <section id="cat-processing" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-green-500 rounded-full"></span> CNC/加工</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 表面處理 -->
+    <section id="cat-surface" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-indigo-400 rounded-full"></span> 表面處理</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 熱處理 -->
+    <section id="cat-heat" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-rose-400 rounded-full"></span> 熱處理</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 車削、銑床(加工) -->
+    <section id="cat-turning-milling" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-amber-400 rounded-full"></span> 車削、銑床(加工)</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 塑膠料 -->
+    <section id="cat-plastic-material" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-teal-400 rounded-full"></span> 塑膠料</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 車削、銑床(設備) -->
+    <section id="cat-turning-milling-equipment" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-lime-400 rounded-full"></span> 車削、銑床(設備)</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 鐵材 -->
+    <section id="cat-iron-material" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-slate-400 rounded-full"></span> 鐵材</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 塑膠射出類 -->
+    <section id="cat-plastic-injection" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-fuchsia-400 rounded-full"></span> 塑膠射出類</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 油封 -->
+    <section id="cat-oil-seal" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-violet-400 rounded-full"></span> 油封</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section><!-- 自動化設備 -->
+    <section id="cat-automation" class="section-anchor bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden vendor-section">
+     <div class="bg-gray-800 text-white px-5 py-3">
+      <h2 class="font-semibold text-lg flex items-center gap-2"><span class="w-2 h-2 bg-sky-400 rounded-full"></span> 自動化設備</h2>
+     </div>
+     <div class="table-container p-4">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 100px;">分 類</th>
+         <th style="width: 200px;">名 稱 / 雜 記</th>
+         <th style="width: 100px;">連絡人</th>
+         <th style="width: 120px;">手 機</th>
+         <th style="width: 120px;">電 話</th>
+         <th style="width: 120px;">傳 真</th>
+         <th style="min-width: 200px;">地 址</th>
+        </tr>
+       </thead>
+       <tbody>
+        <tr>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+         <td contenteditable="true"></td>
+        </tr>
+       </tbody>
+      </table><button onclick="addRow(this)" class="mt-3 text-sm text-blue-600 hover:text-blue-800 flex items-center gap-1">
+       <svg class="w-4 h-4" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+       </svg> 新增一列 </button>
+     </div>
+    </section>
+   </div><!-- Footer -->
+   <footer class="bg-gray-800 text-gray-300 py-6 mt-8">
+    <div class="max-w-7xl mx-auto px-4">
+     <div class="bg-gray-700 rounded-lg p-5 mb-4">
+      <h3 class="font-semibold text-white mb-3 flex items-center gap-2">
+       <svg class="w-5 h-5" fill="none" stroke="currentColor" viewbox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"></path>
+       </svg> 共同編輯提醒</h3>
+      <ul class="space-y-2 text-sm">
+       <li class="flex items-start gap-2"><span class="text-yellow-400">⚠</span> 本系統為共同編輯資料庫</li>
+       <li class="flex items-start gap-2"><span class="text-yellow-400">⚠</span> 請勿刪除他人資料，只新增或補充</li>
+       <li class="flex items-start gap-2"><span class="text-yellow-400">⚠</span> 更新請在「名 稱 / 雜 記」欄位加上日期與姓名</li>
+      </ul>
+     </div>
+     <p class="text-center text-gray-500 text-sm">© 廠商搜尋系統（開發內部用）</p>
+    </div>
+   </footer>
+  </div>
+  <script>
+    const defaultConfig = {
+      main_title: '廠商搜尋系統（開發內部用）',
+      subtitle: '集中管理廠商資訊，提供快速查詢與共同維護'
+    };
+
+    // 搜尋功能
+    document.getElementById('search-input').addEventListener('input', function(e) {
+      const searchTerm = e.target.value.toLowerCase().trim();
+      const sections = document.querySelectorAll('.vendor-section');
+      
+      if (!searchTerm) {
+        sections.forEach(section => {
+          section.style.display = '';
+          section.querySelectorAll('tbody tr').forEach(row => {
+            row.classList.remove('hidden');
+          });
+        });
+        return;
+      }
+
+      sections.forEach(section => {
+        const rows = section.querySelectorAll('tbody tr');
+        let sectionHasMatch = false;
+
+        rows.forEach(row => {
+          const rowText = row.textContent.toLowerCase();
+          if (rowText.includes(searchTerm)) {
+            row.classList.remove('hidden');
+            sectionHasMatch = true;
+          } else {
+            row.classList.add('hidden');
+          }
+        });
+
+        section.style.display = sectionHasMatch ? '' : 'none';
+      });
+    });
+
+    function addRow(button) {
+      const table = button.previousElementSibling;
+      const tbody = table.querySelector('tbody');
+      const newRow = document.createElement('tr');
+      newRow.innerHTML = `
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+        <td contenteditable="true"></td>
+      `;
+      tbody.appendChild(newRow);
+      newRow.querySelector('td').focus();
+    }
+
+    function showToast(message, isError = false) {
+      const toast = document.createElement('div');
+      toast.className = `toast ${isError ? 'error' : ''}`;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function handleExcelImport(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          const data = new Uint8Array(e.target.result);
+          const workbook = XLSX.read(data, { type: 'array' });
+          const sheetName = workbook.SheetNames[0];
+          const sheet = workbook.Sheets[sheetName];
+          const rows = XLSX.utils.sheet_to_json(sheet, { header: 1 });
+
+          if (rows.length < 2) {
+            showToast('Excel 檔案沒有資料', true);
+            return;
+          }
+
+          const headers = rows[0].map(h => String(h).toLowerCase().trim());
+          let addedCount = 0;
+          
+          for (let i = 1; i < rows.length; i++) {
+            const row = rows[i];
+            if (!row || row.every(cell => !cell)) continue;
+
+            const cells = row.slice(0, 7).map(cell => escapeHtml(String(cell || '')));
+            if (cells.every(cell => !cell)) continue;
+
+            const newRow = document.createElement('tr');
+            newRow.innerHTML = cells.map(cell => 
+              `<td contenteditable="true">${cell}</td>`
+            ).join('');
+
+            const firstSection = document.querySelector('.vendor-section tbody');
+            if (firstSection) {
+              firstSection.appendChild(newRow);
+              addedCount++;
+            }
+          }
+
+          showToast(`成功導入 ${addedCount} 筆資料！`);
+          document.getElementById('excel-input').value = '';
+        } catch (error) {
+          showToast('導入失敗：' + error.message, true);
+        }
+      };
+
+      reader.readAsArrayBuffer(file);
+    }
+
+    function escapeHtml(text) {
+      const map = {
+        '&': '&amp;',
+        '<': '&lt;',
+        '>': '&gt;',
+        '"': '&quot;',
+        "'": '&#039;'
+      };
+      return String(text).replace(/[&<>"']/g, m => map[m]);
+    }
+
+    async function onConfigChange(config) {
+      const titleEl = document.getElementById('main-title');
+      const subtitleEl = document.getElementById('subtitle');
+      
+      if (titleEl) {
+        titleEl.textContent = config.main_title || defaultConfig.main_title;
+      }
+      if (subtitleEl) {
+        subtitleEl.textContent = config.subtitle || defaultConfig.subtitle;
+      }
+    }
+
+    function mapToCapabilities(config) {
+      return {
+        recolorables: [],
+        borderables: [],
+        fontEditable: undefined,
+        fontSizeable: undefined
+      };
+    }
+
+    function mapToEditPanelValues(config) {
+      return new Map([
+        ['main_title', config.main_title || defaultConfig.main_title],
+        ['subtitle', config.subtitle || defaultConfig.subtitle]
+      ]);
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities,
+        mapToEditPanelValues
+      });
+    }
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9c3e09b275b1f201',t:'MTc2OTQwOTgyNS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
