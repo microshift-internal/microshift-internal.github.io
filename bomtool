@@ -1,1 +1,791 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>料號工具（產生器 / 檢查工具）</title>
+  <style>
+    :root{
+      --bg1:#f7f9ff;
+      --bg2:#eef3ff;
+      --card:#ffffff;
+      --text:#0f172a;
+      --muted:#475569;
+      --line:#d7e0ff;
+      --soft:#f2f6ff;
 
+      --ok:#16a34a;
+      --bad:#dc2626;
+      --warn:#d97706;
+
+      --btn:#2563eb;
+      --btnHover:#1d4ed8;
+      --btnGhost:#eef2ff;
+      --btnGhostBorder:#c7d2fe;
+
+      --shadow: 0 12px 35px rgba(15,23,42,.10);
+    }
+
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", "Noto Sans TC", Arial;
+      color:var(--text);
+      background:
+        radial-gradient(900px 600px at 10% 10%, #ffffff 0%, var(--bg1) 45%),
+        radial-gradient(900px 600px at 90% 0%, #eaf0ff 0%, var(--bg2) 55%),
+        linear-gradient(180deg, var(--bg1), var(--bg2));
+      min-height: 100vh;
+    }
+
+    .wrap{max-width:1280px; margin:28px auto; padding:0 16px;}
+    .title{display:flex; align-items:flex-end; justify-content:space-between; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+    h1{margin:0; font-size:20px; letter-spacing:.3px;}
+    .hint{color:var(--muted); font-size:13px; line-height:1.45;}
+
+    .tabs{
+      display:flex; gap:10px; flex-wrap:wrap;
+      padding:8px;
+      background: rgba(255,255,255,.7);
+      border:1px solid var(--line);
+      border-radius:14px;
+      box-shadow: var(--shadow);
+    }
+    .tab{
+      appearance:none;
+      border:1px solid transparent;
+      background: transparent;
+      color: var(--muted);
+      padding:10px 12px;
+      border-radius:12px;
+      cursor:pointer;
+      font-size:13px;
+      transition: all .15s ease;
+      white-space: nowrap;
+    }
+    .tab:hover{background: rgba(37,99,235,.06); color:#1e3a8a;}
+    .tab.active{
+      background: rgba(37,99,235,.10);
+      border-color: rgba(37,99,235,.22);
+      color:#1e3a8a;
+      font-weight:600;
+    }
+
+    /* ✅ 修正跑版核心：
+       1) 不再用「minmax(360px,1fr) + input min-width:360」這種會在手機把欄位擠爆
+       2) 改成 RWD 友善：桌面兩欄、平板一欄；輸入欄位不再強制最小寬度
+    */
+    .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; align-items:start;}
+    @media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
+
+    .card{
+      background: var(--card);
+      border:1px solid var(--line);
+      box-shadow: var(--shadow);
+      border-radius:16px;
+      padding:16px;
+    }
+    .card h2{margin:0 0 10px 0; font-size:15px;}
+
+    .row{
+      display:grid;
+      grid-template-columns: 190px 1fr;  /* ✅ 手機不會爆寬 */
+      gap:12px;
+      align-items:center;
+      margin:12px 0;
+    }
+    @media (max-width: 640px){
+      .row{grid-template-columns: 1fr;}
+    }
+
+    label{color:#0b1b3a; font-size:13px; white-space:nowrap;}
+    @media (max-width:640px){ label{white-space:normal;} }
+
+    /* ✅ input/select/textarea 不強制最小寬度（就是你現在跑版的主因） */
+    input, textarea, select{
+      width:100%;
+      background: var(--soft);
+      border:1px solid rgba(15,23,42,.12);
+      color:var(--text);
+      border-radius:12px;
+      padding:12px 14px;
+      outline:none;
+      min-width: 0;
+    }
+
+    textarea{min-height:96px; resize:vertical;}
+    input:focus, textarea:focus, select:focus{
+      border-color: rgba(37,99,235,.45);
+      box-shadow:0 0 0 3px rgba(37,99,235,.15);
+      background:#fff;
+    }
+
+    .split{display:grid; grid-template-columns: 1fr 1fr; gap:14px;}
+    @media (max-width:720px){ .split{grid-template-columns:1fr;} }
+
+    /* 製程碼下拉顯示 */
+    select{
+      appearance:none;
+      padding-right: 52px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .selectWrap{
+      position: relative;
+      width: 100%;
+      min-width: 0;
+    }
+    .selectWrap::after{
+      content:"▾";
+      position:absolute;
+      right:16px;
+      top:50%;
+      transform: translateY(-50%);
+      color: rgba(15,23,42,.55);
+      pointer-events:none;
+      font-size:12px;
+    }
+
+    /* ✅ 讓選中項顯示完整：用 title 顯示完整文字（不依賴 CSS 溢出） */
+    option{white-space:nowrap;}
+
+    .out{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 13px;
+      padding:12px;
+      border-radius:14px;
+      border:1px solid rgba(15,23,42,.12);
+      background: #ffffff;
+      word-break:break-all;
+    }
+
+    .btns{display:flex; gap:10px; flex-wrap:wrap; margin-top:10px;}
+    button{
+      border:none; cursor:pointer; color:white;
+      background: var(--btn);
+      padding:10px 12px;
+      border-radius:12px;
+      transition: transform .08s ease, background .15s ease;
+      font-size:13px;
+      white-space: nowrap;
+    }
+    button:hover{background: var(--btnHover); transform: translateY(-1px);}
+    button:active{transform: translateY(0px);}
+    button.ghost{
+      color:#1e3a8a;
+      background: var(--btnGhost);
+      border:1px solid var(--btnGhostBorder);
+    }
+    button.ghost:hover{background:#e0e7ff;}
+    button.danger{
+      color:white;
+      background: #ef4444;
+    }
+    button.danger:hover{background:#dc2626;}
+    button:disabled{opacity:.55; cursor:not-allowed; transform:none;}
+
+    .status{display:flex; gap:10px; flex-wrap:wrap; margin-top:12px;}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      border:1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.9);
+      padding:8px 10px; border-radius:999px; font-size:13px;
+      white-space: nowrap;
+    }
+    .dot{width:10px; height:10px; border-radius:999px; background:var(--warn);}
+    .pill.ok .dot{background:var(--ok);}
+    .pill.bad .dot{background:var(--bad);}
+    .pill.warn .dot{background:var(--warn);}
+
+    .twoCol{display:grid; grid-template-columns: 1fr 1fr; gap:12px;}
+    @media (max-width:820px){ .twoCol{grid-template-columns:1fr;} }
+
+    .kpi{
+      border:1px solid rgba(15,23,42,.12);
+      background: rgba(255,255,255,.9);
+      border-radius:14px;
+      padding:12px;
+      min-width:0;
+    }
+    .kpi .k{color:var(--muted); font-size:12px;}
+    .kpi .v{font-size: 12px;margin-top:6px;word-break:break-all;}
+
+    .footer{color:rgba(15,23,42,.60); font-size:12px; margin-top:12px;}
+    .note{color:rgba(15,23,42,.75); font-size:12px; margin-top:8px; line-height:1.5;}
+    .okText{color:var(--ok);}
+
+    /* 歷史紀錄（手機改為上下堆疊，避免直向「逐字換行」） */
+    .histHead{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:10px; flex-wrap:wrap; margin-top:14px;
+    }
+    .histList{
+      margin-top:10px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      overflow:hidden;
+      background:#fff;
+    }
+    .histRow{
+      display:grid;
+      grid-template-columns: 36px 1fr 92px;
+      gap:10px;
+      padding:10px 12px;
+      align-items:start;
+      border-top:1px solid rgba(15,23,42,.08);
+    }
+    .histRow:first-child{border-top:none;}
+    .histIdx{font-size:12px; color:var(--muted); text-align:right; padding-top:8px;}
+
+    .histMain{display:grid; gap:8px; min-width:0;}
+    .histPN, .histDesc{
+      font-size: 12px;
+      padding:8px 10px;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
+      background: var(--soft);
+      word-break:break-word;
+    }
+    .histPN{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+    .histActions{display:flex; justify-content:flex-end; padding-top:6px;}
+    .histEmpty{padding:12px; color:var(--muted); font-size:13px;}
+  </style>
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="title">
+      <div>
+        <h1>料號工具</h1>
+        <div class="hint"></div>
+      </div>
+
+      <div class="tabs" role="tablist" aria-label="工具切換">
+        <button class="tab active" id="tabGen" role="tab" aria-selected="true" aria-controls="panelGen">料號產生器</button>
+        <button class="tab" id="tabCheck" role="tab" aria-selected="false" aria-controls="panelCheck">檢查工具</button>
+      </div>
+    </div>
+
+    <!-- ===== Panel: Generator ===== -->
+    <section id="panelGen" role="tabpanel" aria-labelledby="tabGen">
+      <div class="grid">
+        <!-- 左：輸入 -->
+        <div class="card">
+          <h2>1) 輸入料號組成</h2>
+
+          <div class="split">
+            <div class="row">
+              <label for="series">產品系列（2碼）</label>
+              <input id="series" maxlength="2" placeholder="例如：8C" />
+            </div>
+            <div class="row">
+              <label for="partNo">零件序號（2碼）</label>
+              <input id="partNo" maxlength="2" placeholder="例如：24" />
+            </div>
+          </div>
+
+          <div class="split">
+            <div class="row">
+              <label for="feature">特徵碼（1~2碼）</label>
+              <input id="feature" maxlength="2" placeholder="例如：L 或 0 或 AB" />
+            </div>
+            <div class="row">
+              <label for="ec">設變碼（2~1碼）</label>
+              <input id="ec" maxlength="2" placeholder="例如：00" />
+            </div>
+          </div>
+
+          <div class="split">
+            <div class="row">
+              <label for="proc">製程碼（2碼）</label>
+              <div class="selectWrap">
+                <select id="proc"></select>
+              </div>
+            </div>
+            <div class="row">
+              <label for="seq">流水號（1碼）</label>
+              <input id="seq" maxlength="1" placeholder="例如：0" />
+            </div>
+          </div>
+
+          <div class="row">
+            <label>製程碼中文說明（自動）</label>
+            <div class="out" id="procDesc">—</div>
+          </div>
+
+          <h2 style="margin-top:14px;">2) 輸入中文敘述</h2>
+          <div class="row">
+            <label for="desc">中文敘述（≤30碼）</label>
+            <textarea id="desc" placeholder="例如：8C 左煞把握距調整轉盤 粉末冶金 SMF5040 鎳滾電"></textarea>
+          </div>
+
+          <div class="btns">
+            <button class="ghost" id="btnFillDemo" type="button">填入範例</button>
+            <button class="ghost" id="btnClear" type="button">清空</button>
+          </div>
+
+          <div class="note">
+            ※ 製程檢查「未包含」只提醒，不影響複製/保存。
+          </div>
+        </div>
+
+        <!-- 右：輸出與檢查 -->
+        <div class="card">
+          <h2>輸出與檢查</h2>
+
+          <div class="twoCol">
+            <div class="kpi">
+              <div class="k">料號（可複製）</div>
+              <div class="v out" id="outPN">—</div>
+              <div class="btns">
+                <button id="copyPN" type="button">複製料號</button>
+              </div>
+            </div>
+
+            <div class="kpi">
+              <div class="k">中文敘述（可複製）</div>
+              <div class="v out" id="outDesc">—</div>
+              <div class="btns">
+                <button id="copyDesc" type="button">複製中文敘述</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="status" id="statusArea" aria-live="polite" style="margin-top:12px;"></div>
+          <div class="note" id="noteGen"></div>
+
+          <div class="histHead">
+            <h2 style="margin:0;">歷史紀錄</h2>
+            <div class="btns" style="margin:0;">
+              <button id="btnSaveHistory" type="button">保存本筆</button>
+              <button class="ghost" id="btnClearHistory" type="button">清空全部</button>
+            </div>
+          </div>
+
+          <div class="histList" id="histList">
+            <div class="histEmpty">尚無紀錄。完成填寫後按「保存本筆」。</div>
+          </div>
+
+          <div class="footer">
+            歷史紀錄會儲存在此瀏覽器（localStorage），重新整理不會消失。
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== Panel: Checker ===== -->
+    <section id="panelCheck" role="tabpanel" aria-labelledby="tabCheck" style="display:none;">
+      <div class="grid">
+        <div class="card">
+          <h2>手動輸入（檢查工具）</h2>
+
+          <div class="row">
+            <label for="manualPN">料號（手動）</label>
+            <input id="manualPN" placeholder="例如：8C24L00CD0" />
+          </div>
+
+          <div class="row">
+            <label for="manualProc">製程碼（2碼）</label>
+            <div class="selectWrap">
+              <select id="manualProc"></select>
+            </div>
+          </div>
+
+          <div class="row">
+            <label>製程碼中文說明（自動）</label>
+            <div class="out" id="manualProcDesc">—</div>
+          </div>
+
+          <div class="row">
+            <label for="manualDesc">中文敘述（手動）</label>
+            <textarea id="manualDesc" placeholder="請貼上或輸入中文敘述"></textarea>
+          </div>
+
+          <div class="btns">
+            <button class="ghost" id="btnManualDemo" type="button">填入範例</button>
+            <button class="ghost" id="btnManualClear" type="button">清空</button>
+          </div>
+
+          <div class="note">
+            ※ 此分頁僅檢查與複製（不擋複製）。
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>檢查結果與複製</h2>
+
+          <div class="twoCol">
+            <div class="kpi">
+              <div class="k">料號（可複製）</div>
+              <div class="v out" id="manualOutPN">—</div>
+              <div class="btns">
+                <button id="manualCopyPN" type="button">複製料號</button>
+              </div>
+            </div>
+
+            <div class="kpi">
+              <div class="k">中文敘述（可複製）</div>
+              <div class="v out" id="manualOutDesc">—</div>
+              <div class="btns">
+                <button id="manualCopyDesc" type="button">複製中文敘述</button>
+              </div>
+            </div>
+          </div>
+
+          <div class="status" id="manualStatusArea" aria-live="polite" style="margin-top:12px;"></div>
+          <div class="note" id="noteManual"></div>
+        </div>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    // ====== 製程碼對照表（省略：請保留你原本那份完整 Map）=====
+    const PROC_MAP = new Map([
+      ["00","市購件"],["0A","鐵捲料(SPFC)"],["0B","鋁捲料"],["0C","鐵板料"],["0D","鋁板料"],
+      ["0E","不鏽鋼捲料"],["0F","銅棒材"],["0G","鋁棒材"],["0H","不鏽鋼棒材"],["0J","鋁廢料"],
+      ["0K","塑膠射出原料"],["0L","鐵捲料(SPCC)"],["0M","鍍鋅捲料(SPCC)"],["0N","鐵棒材"],["0P","塑膠卷料"],
+      ["0Q","鐵捲料(SAPH440)"],["1A","沖床"],["1B","沖床--整平"],["1C","鉚合"],["1D","沖接"],["1E","手壓"],["1F","沖製--鋁"],
+      ["2A","鍛造--鋁"],["2B","鍛造--鐵"],["2C","螺絲鍛打"],["3A","CNC車床"],["3B","CNC铣床"],["3C","車洗複合"],["3D","研磨"],
+      ["3E","細砂修"],["3F","砂修"],["3G","拋光(一般)"],["3J","鑽孔"],["3K","鉸孔"],["3L","攻牙&皿頭"],["3N","洗亮"],["3P","鏡面拋光"],
+      ["3Q","CNC铣亮面"],["3R","CNC+鉸孔"],["3T","拉絲"],["3U","核桃拋"],["4A","鋁壓鑄"],["4B","鋅壓鑄"],["5A","粉末冶金"],
+      ["5B","粉末冶金--燒結"],["5C","粉末冶金--熱處理"],["5D","粉末冶金+加工"],["5E","粉末射出---鐵"],["5F","粉末射出--不鏽鋼"],
+      ["6A","滲碳焠火"],["6B","回火"],["6C","氮化"],["6D","調質"],["6E","高週波"],["6F","T4"],["6G","T6"],["6H","鹽浴"],
+      ["7A","粗振"],["7B","細振"],["7C","振亮"],["7D","陶瓷振動"],["7F","超音波清洗"],["7G","振動+特殊製程+噴氧化鋁"],
+      ["8A","噴小鋼珠"],["8B","噴砂#80"],["8C","噴砂#100"],["8D","噴砂#120"],["8E","噴砂#60"],["8H","噴玻璃砂#2"],["8M","噴砂#0.2mm"],
+      ["8N","沙丁鎳噴砂"],["8P","吹氣 (清除殘砂)"],["9A","陽極--黑"],["9B","陽極--銀"],["9C","陽極--深灰色( A24 )"],["9D","陽極--K金色( A5 )"],
+      ["9E","陽極--紅"],["9F","陽極黑--鏡面拋光"],["9G","陽極銀+拋光+印刷"],["9H","陽極黑+拋光+印刷"],["9J","陽極銀--鏡面拋光"],["9K","陽極灰--雷雕"],
+      ["9P","陽極黑--印刷"],["9Q","陽極黑--水標"],["9R","陽極黑--雷雕"],["9T","陽極銀--印刷"],["9U","陽極銀--水標"],["9V","陽極銀--雷雕"],
+      ["9X","陽極紅--雷雕"],["9Y","陽極霧黑"],["9Z","陽極-鋁本色"],["AA","橡膠/塑膠射出"],["AB","包膠"],["AC","熱壓"],["AD","射包碳纖"],
+      ["BA","磷酸鹽灰"],["BB","磷酸鹽黑"],["BC","磷酸錳"],["BD","鉻酸皮膜"],["BE","染黑"],["CA","鉻吊電"],["CB","鉻滾電"],["CC","鎳吊電"],["CD","鎳滾電"],
+      ["CE","三價鉻白鋅"],["CF","三價鉻黑鋅"],["CG","三價鉻黃鋅"],["CH","三價鉻五彩"],["CJ","路銹寶"],["CK","除氫"],["CL","達可銹--銀本色"],["CM","達可銹--黑"],
+      ["CN","沙丁鎳"],["CP","黑鎳"],["CQ","鍍鐵氟龍--黑"],["CR","三價鉻黑鋅(除氫)"],["CT","沙丁鎳(除氫)"],["CV","三價鉻白鋅(除氫)"],
+      ["DA","烤漆亮黑"],["DB","烤漆霧黑"],["DC","烤漆亮銀"],["DD","烤漆霧銀"],["DE","烤漆白"],["DF","烤漆透明"],["DG","烤漆透明--水標"],["DH","烤漆白--水標"],
+      ["DJ","烤漆亮鈦"],["DK","烤漆霧黑+CNC+印刷"],["DM","烤漆透明--印刷"],["DN","烤漆透明--雷雕"],["DP","烤漆霧黑--印刷"],["DQ","烤漆霧黑--水標"],["DR","烤漆霧黑--雷雕"],
+      ["DT","烤漆亮黑--印刷"],["DU","烤漆亮黑--水標"],["DV","烤漆亮黑--雷雕"],["DW","烤漆白--印刷"],["DX","烤漆黑--印刷"],["DY","烤漆霧黑--雷雕+印刷"],["DZ","烤漆--織紋漆"],
+      ["EA","電著亮黑"],["EB","電著霧黑"],["EN","氮化+電著亮黑"],["EP","電著霧黑--印刷"],["EQ","電著霧黑--水標"],["ER","電著霧黑--雷刻"],["ET","電著亮黑--印刷"],["EV","電著亮黑--雷刻"],
+      ["GA","烤漆霧灰 (水泥灰)"],["GB","烤漆霧灰-印刷"],["GC","烤漆-5度消光黑"],["GD","烤漆-5度消光黑--印刷"],["GE","烤漆-5度消光黑--雷刻"],["GF","烤漆-5度消光黑+砂 (鐵砂黑)--雷刻"],["GG","烤漆-5度消光黑+砂 (鐵砂黑)"],
+      ["MA","染黑(不加防鏽油)"],["ME","染黑+電著黑"],["MP","染黑+電著黑+印刷"],["WA","不鏽鋼黑化"],["WB","噴油"],["WC","浸油"],["WD","防鬆膠"],["WE","耐鍊"],["WF","印刷"],["WG","噴字"],
+      ["WH","含浸"],["WJ","氣密膠"],["XA","塗膠"],["XB","擦介質"],["XC","除油"],["XD","雷刻"],["XE","上遮噴"],["XF","彈簧成型"],["XG","多工成型 (鏈撥整型)"],["XH","修剪"],["XJ","鎖螺絲"],["XK","拆螺絲"],["XL","拆遮噴"],["XM","貼保護膜"],
+      ["YA","鋁擠"],["YB","包碳纖"],["YC","碳纖--水標"],
+    ]);
+
+    const $ = (id) => document.getElementById(id);
+
+    const tabGen = $("tabGen"), tabCheck = $("tabCheck");
+    const panelGen = $("panelGen"), panelCheck = $("panelCheck");
+
+    const elSeries = $("series"), elPartNo = $("partNo"), elFeature = $("feature"), elEC = $("ec"), elProc = $("proc"), elSeq = $("seq");
+    const elProcDesc = $("procDesc"), elDesc = $("desc");
+    const outPN = $("outPN"), outDesc = $("outDesc");
+    const statusArea = $("statusArea"), noteGen = $("noteGen");
+    const btnCopyPN = $("copyPN"), btnCopyDesc = $("copyDesc");
+    const btnClear = $("btnClear"), btnFillDemo = $("btnFillDemo");
+    const btnSaveHistory = $("btnSaveHistory"), btnClearHistory = $("btnClearHistory"), histList = $("histList");
+
+    const manualPN = $("manualPN"), manualProc = $("manualProc"), manualProcDesc = $("manualProcDesc"), manualDesc = $("manualDesc");
+    const manualOutPN = $("manualOutPN"), manualOutDesc = $("manualOutDesc");
+    const manualStatusArea = $("manualStatusArea"), noteManual = $("noteManual");
+    const manualCopyPN = $("manualCopyPN"), manualCopyDesc = $("manualCopyDesc");
+    const btnManualDemo = $("btnManualDemo"), btnManualClear = $("btnManualClear");
+
+    function normalizeUpper(s){ return (s ?? "").toString().trim().toUpperCase(); }
+    function onlyAlnum(s){ return normalizeUpper(s).replace(/[^0-9A-Z]/g, ""); }
+    function safeText(s){ return (s ?? "").toString(); }
+
+    function makePill(state, label, detail){
+      const cls = state === "ok" ? "pill ok" : state === "bad" ? "pill bad" : "pill warn";
+      return `
+        <div class="${cls}">
+          <span class="dot" aria-hidden="true"></span>
+          <span>${label}</span>
+          <span style="color: rgba(15,23,42,.65);">｜${detail}</span>
+        </div>
+      `;
+    }
+
+    async function copyToClipboard(text, noteEl){
+      const t = safeText(text);
+      if (!t || t === "—") return;
+      try{
+        await navigator.clipboard.writeText(t);
+        flashNote(noteEl, `已複製：${t}`);
+      }catch(_){
+        const ta = document.createElement("textarea");
+        ta.value = t;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand("copy");
+        ta.remove();
+        flashNote(noteEl, `已複製：${t}`);
+      }
+    }
+
+    let flashTimer = null;
+    function flashNote(noteEl, msg){
+      const old = noteEl.innerHTML;
+      noteEl.innerHTML = `<span class="okText">• ${msg}</span>`;
+      clearTimeout(flashTimer);
+      flashTimer = setTimeout(()=>{ noteEl.innerHTML = old; }, 1200);
+    }
+
+    function initProcSelect(selectEl){
+      const codes = Array.from(PROC_MAP.keys()).sort((a,b)=> a.localeCompare(b));
+      selectEl.innerHTML =
+        `<option value="">— 請選擇 —</option>` +
+        codes.map(c=>{
+          const d = PROC_MAP.get(c);
+          return `<option value="${c}">${c}　${d}</option>`;
+        }).join("");
+      // ✅ 用 title 顯示完整（避免選中項被省略時不知道）
+      selectEl.addEventListener("change", ()=>{
+        const opt = selectEl.options[selectEl.selectedIndex];
+        selectEl.title = opt ? opt.textContent : "";
+      });
+      // 初始化 title
+      const opt0 = selectEl.options[selectEl.selectedIndex];
+      selectEl.title = opt0 ? opt0.textContent : "";
+    }
+
+    // ===== Generator =====
+    function buildPartNumber(){
+      const series = onlyAlnum(elSeries.value).slice(0,2);
+      const partNo  = onlyAlnum(elPartNo.value).slice(0,2);
+      const feature = onlyAlnum(elFeature.value).slice(0,2);
+      const ec      = onlyAlnum(elEC.value).slice(0,2);
+      const proc    = onlyAlnum(elProc.value).slice(0,2);
+      const seq     = onlyAlnum(elSeq.value).slice(0,1);
+      return `${series}${partNo}${feature}${ec}${proc}${seq}`;
+    }
+
+    function getGenState(){
+      const pn = buildPartNumber();
+      const pnLen = pn.length;
+
+      const procCode = normalizeUpper(elProc.value);
+      const procDesc = PROC_MAP.get(procCode) || "";
+
+      const desc = safeText(elDesc.value).trim();
+      const descLen = desc.length;
+
+      const pnLenOk = pnLen > 0 && pnLen <= 10;
+      const pnHasAllInputs = [elSeries.value, elPartNo.value, elEC.value, elProc.value, elSeq.value]
+        .every(v => normalizeUpper(v).length > 0);
+      const descLenOk = descLen > 0 && descLen <= 30;
+
+      const mustInclude = procDesc ? desc.includes(procDesc) : false;
+
+      // 保存條件：不要求 mustInclude
+      const allCompleteForSave = pnHasAllInputs && pnLenOk && descLenOk;
+
+      return { pn, pnLen, procCode, procDesc, desc, descLen, pnLenOk, pnHasAllInputs, descLenOk, mustInclude, allCompleteForSave };
+    }
+
+    function renderGenerator(){
+      const st = getGenState();
+
+      elProcDesc.textContent = st.procDesc || "—";
+      outPN.textContent = st.pn || "—";
+      outDesc.textContent = st.desc || "—";
+
+      const includeState = st.procDesc ? (st.mustInclude ? "ok" : "bad") : "warn";
+      statusArea.innerHTML = [
+        makePill(st.pnLenOk ? "ok" : (st.pnLen===0 ? "warn" : "bad"), `料號字元：${st.pnLen} / 10`, st.pnLenOk ? "OK" : (st.pnLen===0 ? "尚未產生" : "超過10碼")),
+        makePill(includeState, `製程檢查：${st.procDesc ? "需包含" : "無對照"}`, st.procDesc ? (st.mustInclude ? "包含製程" : "未包含製程") : "請先選製程碼"),
+        makePill((st.descLen===0) ? "warn" : (st.descLenOk ? "ok" : "bad"), `中文字元：${st.descLen} / 30`, (st.descLen===0) ? "尚未輸入" : (st.descLenOk ? "OK" : "超過30碼")),
+      ].join("");
+
+      const notes = [];
+      if (!st.pnHasAllInputs) notes.push("• 部分欄位尚未填完（仍可先預覽料號）");
+      if (st.procDesc && st.desc && !st.mustInclude) notes.push(`• 中文敘述未包含製程說明：「${st.procDesc}」（不影響複製/保存）`);
+      if (st.pnLen > 10) notes.push("• 料號超過 10 碼：請縮短特徵碼或檢查輸入。");
+      if (st.descLen > 30) notes.push("• 中文敘述超過 30 碼。");
+
+      noteGen.innerHTML = notes.length ? notes.join("<br/>") : `<span class="okText">• 檢查通過（或已接近完成）</span>`;
+
+      // 不再擋複製中文（只要有輸入且長度OK）
+      btnCopyPN.disabled = !(st.pnLenOk && st.pnLen > 0);
+      btnCopyDesc.disabled = !(st.descLenOk && st.descLen > 0);
+
+      btnSaveHistory.disabled = !st.allCompleteForSave;
+    }
+
+    function clearGenerator(){
+      elSeries.value=""; elPartNo.value=""; elFeature.value=""; elEC.value="";
+      elProc.value=""; elSeq.value=""; elDesc.value="";
+      renderGenerator();
+    }
+
+    function fillGeneratorDemo(){
+      elSeries.value="8C"; elPartNo.value="24"; elFeature.value="L"; elEC.value="00";
+      elProc.value="CD"; elSeq.value="0";
+      elDesc.value="8C 左煞把握距調整轉盤 粉末冶金 SMF5040 鎳滾電";
+      renderGenerator();
+    }
+
+    // ===== History =====
+    const LS_KEY = "ms_partno_history_v2";
+    function loadHistory(){
+      try{
+        const raw = localStorage.getItem(LS_KEY);
+        const arr = raw ? JSON.parse(raw) : [];
+        return Array.isArray(arr) ? arr : [];
+      }catch(_){ return []; }
+    }
+    function saveHistory(arr){ localStorage.setItem(LS_KEY, JSON.stringify(arr)); }
+    function newId(){ return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2,8)}`; }
+    function escapeHtml(s){
+      return safeText(s)
+        .replaceAll("&","&amp;").replaceAll("<","&lt;").replaceAll(">","&gt;")
+        .replaceAll('"',"&quot;").replaceAll("'","&#039;");
+    }
+    function historyAdd(record){
+      const arr = loadHistory();
+      const exists = arr.some(x => x.pn === record.pn && x.desc === record.desc);
+      if (exists) return { ok:false, reason:"duplicate" };
+      arr.unshift(record);
+      saveHistory(arr);
+      return { ok:true };
+    }
+    function historyDelete(id){
+      const arr = loadHistory().filter(x => x.id !== id);
+      saveHistory(arr);
+    }
+    function historyClear(){ saveHistory([]); }
+
+    function renderHistory(){
+      const arr = loadHistory();
+      if (arr.length === 0){
+        histList.innerHTML = `<div class="histEmpty">尚無紀錄。完成填寫後按「保存本筆」。</div>`;
+        return;
+      }
+      histList.innerHTML = arr.map((x, idx) => `
+        <div class="histRow">
+          <div class="histIdx">${idx+1}</div>
+          <div class="histMain">
+            <div class="histPN" title="${escapeHtml(x.pn)}">${escapeHtml(x.pn)}</div>
+            <div class="histDesc" title="${escapeHtml(x.desc)}">${escapeHtml(x.desc)}</div>
+          </div>
+          <div class="histActions">
+            <button class="danger" data-del="${x.id}" type="button">刪除</button>
+          </div>
+        </div>
+      `).join("");
+
+      histList.querySelectorAll("button[data-del]").forEach(btn=>{
+        btn.addEventListener("click", ()=>{
+          const id = btn.getAttribute("data-del");
+          historyDelete(id);
+          renderHistory();
+        });
+      });
+    }
+
+    // ===== Checker =====
+    function renderChecker(){
+      const pn = onlyAlnum(manualPN.value);
+      const pnLen = pn.length;
+
+      const procCode = normalizeUpper(manualProc.value);
+      const procDesc = PROC_MAP.get(procCode) || "";
+      manualProcDesc.textContent = procDesc || "—";
+
+      const desc = safeText(manualDesc.value).trim();
+      const descLen = desc.length;
+
+      const pnLenOk = pnLen > 0 && pnLen <= 10;
+      const descLenOk = descLen > 0 && descLen <= 30;
+      const mustInclude = procDesc ? desc.includes(procDesc) : false;
+      const includeState = procDesc ? (mustInclude ? "ok" : "bad") : "warn";
+
+      manualOutPN.textContent = pn || "—";
+      manualOutDesc.textContent = desc || "—";
+
+      manualStatusArea.innerHTML = [
+        makePill(pnLenOk ? "ok" : (pnLen===0 ? "warn" : "bad"), `料號字元：${pnLen} / 10`, pnLenOk ? "OK" : (pnLen===0 ? "尚未輸入" : "超過10碼")),
+        makePill(includeState, `製程檢查：${procDesc ? "需包含" : "無對照"}`, procDesc ? (mustInclude ? "包含製程" : "未包含製程") : "請先選製程碼"),
+        makePill((descLen===0) ? "warn" : (descLenOk ? "ok" : "bad"), `中文字元：${descLen} / 30`, (descLen===0) ? "尚未輸入" : (descLenOk ? "OK" : "超過30碼")),
+      ].join("");
+
+      const notes = [];
+      if (pnLen > 10) notes.push("• 料號已超過 10 碼");
+      if (procDesc && desc && !mustInclude) notes.push(`• 中文敘述未包含製程說明：「${procDesc}」（仍可複製）`);
+      if (descLen > 30) notes.push("• 中文敘述已超過 30 碼");
+      noteManual.innerHTML = notes.length ? notes.join("<br/>") : `<span class="okText">• 檢查通過（或已接近完成）</span>`;
+
+      manualCopyPN.disabled = !(pnLen > 0);
+      manualCopyDesc.disabled = !(descLen > 0);
+    }
+
+    function clearChecker(){ manualPN.value=""; manualProc.value=""; manualDesc.value=""; renderChecker(); }
+    function fillCheckerDemo(){
+      manualPN.value="8C24L00CD0"; manualProc.value="CD";
+      manualDesc.value="8C 左煞把握距調整轉盤 粉末冶金 SMF5040 鎳滾電";
+      renderChecker();
+    }
+
+    // ===== Tabs =====
+    function showPanel(which){
+      const isGen = which === "gen";
+      panelGen.style.display = isGen ? "" : "none";
+      panelCheck.style.display = isGen ? "none" : "";
+      tabGen.classList.toggle("active", isGen);
+      tabCheck.classList.toggle("active", !isGen);
+      tabGen.setAttribute("aria-selected", isGen ? "true" : "false");
+      tabCheck.setAttribute("aria-selected", !isGen ? "true" : "false");
+    }
+
+    // ===== Bind =====
+    function bind(){
+      tabGen.addEventListener("click", ()=> showPanel("gen"));
+      tabCheck.addEventListener("click", ()=> showPanel("check"));
+
+      [elSeries, elPartNo, elFeature, elEC, elProc, elSeq, elDesc].forEach(el=>{
+        el.addEventListener("input", renderGenerator);
+        el.addEventListener("change", renderGenerator);
+      });
+
+      btnCopyPN.addEventListener("click", ()=> copyToClipboard(outPN.textContent, noteGen));
+      btnCopyDesc.addEventListener("click", ()=> copyToClipboard(outDesc.textContent, noteGen));
+      btnClear.addEventListener("click", clearGenerator);
+      btnFillDemo.addEventListener("click", fillGeneratorDemo);
+
+      btnSaveHistory.addEventListener("click", ()=>{
+        const st = getGenState();
+        if (!st.allCompleteForSave) return;
+        const record = { id:newId(), ts:Date.now(), pn:st.pn, desc:st.desc, proc:st.procCode, procDesc:st.procDesc, includesProcDesc: st.mustInclude };
+        const res = historyAdd(record);
+        if (res.ok){ renderHistory(); flashNote(noteGen, "已保存到歷史紀錄"); }
+        else { flashNote(noteGen, "相同內容已存在（未新增）"); }
+      });
+
+      btnClearHistory.addEventListener("click", ()=>{
+        if (!confirm("確定要清空全部歷史紀錄嗎？此動作無法復原。")) return;
+        historyClear();
+        renderHistory();
+      });
+
+      [manualPN, manualProc, manualDesc].forEach(el=>{
+        el.addEventListener("input", renderChecker);
+        el.addEventListener("change", renderChecker);
+      });
+
+      manualCopyPN.addEventListener("click", ()=> copyToClipboard(manualOutPN.textContent, noteManual));
+      manualCopyDesc.addEventListener("click", ()=> copyToClipboard(manualOutDesc.textContent, noteManual));
+      btnManualClear.addEventListener("click", clearChecker);
+      btnManualDemo.addEventListener("click", fillCheckerDemo);
+    }
+
+    // ===== Init =====
+    initProcSelect(elProc);
+    initProcSelect(manualProc);
+    bind();
+    renderGenerator();
+    renderChecker();
+    renderHistory();
+  </script>
+</body>
+</html>
