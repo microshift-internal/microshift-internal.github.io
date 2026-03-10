@@ -71,10 +71,6 @@
       font-weight:600;
     }
 
-    /* ✅ 修正跑版核心：
-       1) 不再用「minmax(360px,1fr) + input min-width:360」這種會在手機把欄位擠爆
-       2) 改成 RWD 友善：桌面兩欄、平板一欄；輸入欄位不再強制最小寬度
-    */
     .grid{display:grid; grid-template-columns: 1.1fr .9fr; gap:14px; align-items:start;}
     @media (max-width: 980px){ .grid{grid-template-columns:1fr;} }
 
@@ -87,9 +83,11 @@
     }
     .card h2{margin:0 0 10px 0; font-size:15px;}
 
+    .stack{display:grid; gap:14px;}
+
     .row{
       display:grid;
-      grid-template-columns: 190px 1fr;  /* ✅ 手機不會爆寬 */
+      grid-template-columns: 190px 1fr;
       gap:12px;
       align-items:center;
       margin:12px 0;
@@ -101,7 +99,6 @@
     label{color:#0b1b3a; font-size:13px; white-space:nowrap;}
     @media (max-width:640px){ label{white-space:normal;} }
 
-    /* ✅ input/select/textarea 不強制最小寬度（就是你現在跑版的主因） */
     input, textarea, select{
       width:100%;
       background: var(--soft);
@@ -123,7 +120,6 @@
     .split{display:grid; grid-template-columns: 1fr 1fr; gap:14px;}
     @media (max-width:720px){ .split{grid-template-columns:1fr;} }
 
-    /* 製程碼下拉顯示 */
     select{
       appearance:none;
       padding-right: 52px;
@@ -147,12 +143,11 @@
       font-size:12px;
     }
 
-    /* ✅ 讓選中項顯示完整：用 title 顯示完整文字（不依賴 CSS 溢出） */
     option{white-space:nowrap;}
 
     .out{
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
-      font-size: 13px;
+      font-size:15px;
       padding:12px;
       border-radius:14px;
       border:1px solid rgba(15,23,42,.12);
@@ -209,13 +204,14 @@
       min-width:0;
     }
     .kpi .k{color:var(--muted); font-size:12px;}
-    .kpi .v{font-size: 12px;margin-top:6px;word-break:break-all;}
+    .kpi .v{font-size:18px; margin-top:6px; word-break:break-all;}
 
     .footer{color:rgba(15,23,42,.60); font-size:12px; margin-top:12px;}
     .note{color:rgba(15,23,42,.75); font-size:12px; margin-top:8px; line-height:1.5;}
     .okText{color:var(--ok);}
+    .badText{color:var(--bad);}
+    .warnText{color:var(--warn);}
 
-    /* 歷史紀錄（手機改為上下堆疊，避免直向「逐字換行」） */
     .histHead{
       display:flex; align-items:center; justify-content:space-between;
       gap:10px; flex-wrap:wrap; margin-top:14px;
@@ -240,7 +236,7 @@
 
     .histMain{display:grid; gap:8px; min-width:0;}
     .histPN, .histDesc{
-      font-size: 12px;
+      font-size:13px;
       padding:8px 10px;
       border:1px solid rgba(15,23,42,.12);
       border-radius:12px;
@@ -252,6 +248,71 @@
     }
     .histActions{display:flex; justify-content:flex-end; padding-top:6px;}
     .histEmpty{padding:12px; color:var(--muted); font-size:13px;}
+
+    .batchSection{
+      margin-top:14px;
+    }
+    .batchBox{
+      border-top:1px dashed rgba(15,23,42,.12);
+      padding-top:16px;
+    }
+    .stepBox{
+      border:1px solid rgba(15,23,42,.10);
+      border-radius:14px;
+      background:#fbfdff;
+      padding:12px;
+      margin-top:10px;
+    }
+    .stepTitle{
+      font-size:13px;
+      font-weight:700;
+      color:#1e3a8a;
+      margin-bottom:8px;
+    }
+
+    .fileInput{
+      padding:10px;
+      background:#fff;
+      border:1px dashed rgba(15,23,42,.25);
+      border-radius:12px;
+    }
+
+    .tableWrap{
+      margin-top:12px;
+      overflow:auto;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:14px;
+      background:#fff;
+    }
+    table{
+      width:100%;
+      border-collapse:collapse;
+      font-size:13px;
+      min-width:980px;
+    }
+    th, td{
+      border-bottom:1px solid rgba(15,23,42,.08);
+      padding:10px 8px;
+      text-align:left;
+      vertical-align:top;
+    }
+    th{
+      background:#f8fbff;
+      position:sticky;
+      top:0;
+      z-index:1;
+    }
+    .badge{
+      display:inline-block;
+      padding:3px 8px;
+      border-radius:999px;
+      font-size:12px;
+      font-weight:600;
+      white-space:nowrap;
+    }
+    .badge.ok{background:#dcfce7; color:#166534;}
+    .badge.bad{background:#fee2e2; color:#991b1b;}
+    .badge.warn{background:#fef3c7; color:#92400e;}
   </style>
 </head>
 
@@ -260,7 +321,7 @@
     <div class="title">
       <div>
         <h1>料號工具</h1>
-        <div class="hint"></div>
+        <div class="hint">BOM 批次檢查已獨立到檢查工具最下方，並改成【上傳檔案】→【執行檢查】兩步驟；批次檢查必須三項都 OK 才算通過。</div>
       </div>
 
       <div class="tabs" role="tablist" aria-label="工具切換">
@@ -272,7 +333,6 @@
     <!-- ===== Panel: Generator ===== -->
     <section id="panelGen" role="tabpanel" aria-labelledby="tabGen">
       <div class="grid">
-        <!-- 左：輸入 -->
         <div class="card">
           <h2>1) 輸入料號組成</h2>
 
@@ -289,11 +349,11 @@
 
           <div class="split">
             <div class="row">
-              <label for="feature">特徵碼（1~2碼）</label>
+              <label for="feature">特徵碼（0~2碼）</label>
               <input id="feature" maxlength="2" placeholder="例如：L 或 0 或 AB" />
             </div>
             <div class="row">
-              <label for="ec">設變碼（2~1碼）</label>
+              <label for="ec">設變碼（2碼）</label>
               <input id="ec" maxlength="2" placeholder="例如：00" />
             </div>
           </div>
@@ -332,7 +392,6 @@
           </div>
         </div>
 
-        <!-- 右：輸出與檢查 -->
         <div class="card">
           <h2>輸出與檢查</h2>
 
@@ -378,72 +437,129 @@
 
     <!-- ===== Panel: Checker ===== -->
     <section id="panelCheck" role="tabpanel" aria-labelledby="tabCheck" style="display:none;">
-      <div class="grid">
-        <div class="card">
-          <h2>手動輸入（檢查工具）</h2>
+      <div class="stack">
+        <div class="grid">
+          <div class="card">
+            <h2>手動輸入（檢查工具）</h2>
 
-          <div class="row">
-            <label for="manualPN">料號（手動）</label>
-            <input id="manualPN" placeholder="例如：8C24L00CD0" />
-          </div>
+            <div class="row">
+              <label for="manualPN">料號（手動）</label>
+              <input id="manualPN" placeholder="例如：8C24L00CD0" />
+            </div>
 
-          <div class="row">
-            <label for="manualProc">製程碼（2碼）</label>
-            <div class="selectWrap">
-              <select id="manualProc"></select>
+            <div class="row">
+              <label for="manualProc">製程碼（2碼）</label>
+              <div class="selectWrap">
+                <select id="manualProc"></select>
+              </div>
+            </div>
+
+            <div class="row">
+              <label>製程碼中文說明（自動）</label>
+              <div class="out" id="manualProcDesc">—</div>
+            </div>
+
+            <div class="row">
+              <label for="manualDesc">中文敘述（手動）</label>
+              <textarea id="manualDesc" placeholder="請貼上或輸入中文敘述"></textarea>
+            </div>
+
+            <div class="btns">
+              <button class="ghost" id="btnManualDemo" type="button">填入範例</button>
+              <button class="ghost" id="btnManualClear" type="button">清空</button>
+            </div>
+
+            <div class="note">
+              ※ 此分頁僅檢查與複製（不擋複製）。
             </div>
           </div>
 
-          <div class="row">
-            <label>製程碼中文說明（自動）</label>
-            <div class="out" id="manualProcDesc">—</div>
-          </div>
+          <div class="card">
+            <h2>檢查結果與複製</h2>
 
-          <div class="row">
-            <label for="manualDesc">中文敘述（手動）</label>
-            <textarea id="manualDesc" placeholder="請貼上或輸入中文敘述"></textarea>
-          </div>
+            <div class="twoCol">
+              <div class="kpi">
+                <div class="k">料號（可複製）</div>
+                <div class="v out" id="manualOutPN">—</div>
+                <div class="btns">
+                  <button id="manualCopyPN" type="button">複製料號</button>
+                </div>
+              </div>
 
-          <div class="btns">
-            <button class="ghost" id="btnManualDemo" type="button">填入範例</button>
-            <button class="ghost" id="btnManualClear" type="button">清空</button>
-          </div>
+              <div class="kpi">
+                <div class="k">中文敘述（可複製）</div>
+                <div class="v out" id="manualOutDesc">—</div>
+                <div class="btns">
+                  <button id="manualCopyDesc" type="button">複製中文敘述</button>
+                </div>
+              </div>
+            </div>
 
-          <div class="note">
-            ※ 此分頁僅檢查與複製（不擋複製）。
+            <div class="status" id="manualStatusArea" aria-live="polite" style="margin-top:12px;"></div>
+            <div class="note" id="noteManual"></div>
           </div>
         </div>
 
-        <div class="card">
-          <h2>檢查結果與複製</h2>
+        <!-- ✅ 獨立在最下面的 BOM 批次檢查 -->
+        <div class="card batchSection">
+          <h2>BOM 批次檢查</h2>
 
-          <div class="twoCol">
-            <div class="kpi">
-              <div class="k">料號（可複製）</div>
-              <div class="v out" id="manualOutPN">—</div>
-              <div class="btns">
-                <button id="manualCopyPN" type="button">複製料號</button>
+          <div class="batchBox">
+            <div class="stepBox">
+              <div class="stepTitle">步驟 1：上傳檔案</div>
+              <div class="row" style="grid-template-columns: 120px 1fr;">
+                <label for="batchExcel">Excel 檔案</label>
+                <input id="batchExcel" class="fileInput" type="file" accept=".xlsx,.xls,.csv" />
+              </div>
+              <div class="note" id="batchUploadNote">
+                需包含欄位名稱：<b>零件料號</b>、<b>新零件名稱</b>
               </div>
             </div>
 
-            <div class="kpi">
-              <div class="k">中文敘述（可複製）</div>
-              <div class="v out" id="manualOutDesc">—</div>
+            <div class="stepBox">
+              <div class="stepTitle">步驟 2：執行檢查</div>
               <div class="btns">
-                <button id="manualCopyDesc" type="button">複製中文敘述</button>
+                <button id="btnRunBatchCheck" type="button" disabled>執行檢查</button>
+                <button class="ghost" id="btnClearBatch" type="button">清空批次結果</button>
+              </div>
+              <div class="note">
+                檢查規則：<br>
+                1. 料號字元 ≤ 10<br>
+                2. 中文敘述字元 ≤ 30<br>
+                3. 中文敘述必須包含製程說明<br>
+                <span class="badText">※ 三項都 OK 才顯示「通過」，其餘一律顯示「異常」</span>
               </div>
             </div>
+
+            <div class="tableWrap" id="batchResultWrap" style="display:none;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>#</th>
+                    <th>零件料號</th>
+                    <th>新零件名稱</th>
+                    <th>解析製程碼</th>
+                    <th>製程說明</th>
+                    <th>料號字元</th>
+                    <th>中文敘述字元</th>
+                    <th>是否包含製程說明</th>
+                    <th>檢查結果</th>
+                  </tr>
+                </thead>
+                <tbody id="batchResultBody"></tbody>
+              </table>
+            </div>
+
+            <div class="note" id="batchNote"></div>
           </div>
-
-          <div class="status" id="manualStatusArea" aria-live="polite" style="margin-top:12px;"></div>
-          <div class="note" id="noteManual"></div>
         </div>
       </div>
     </section>
   </div>
 
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js"></script>
+
   <script>
-    // ====== 製程碼對照表（省略：請保留你原本那份完整 Map）=====
     const PROC_MAP = new Map([
       ["00","市購件"],["0A","鐵捲料(SPFC)"],["0B","鋁捲料"],["0C","鐵板料"],["0D","鋁板料"],
       ["0E","不鏽鋼捲料"],["0F","銅棒材"],["0G","鋁棒材"],["0H","不鏽鋼棒材"],["0J","鋁廢料"],
@@ -463,10 +579,10 @@
       ["BA","磷酸鹽灰"],["BB","磷酸鹽黑"],["BC","磷酸錳"],["BD","鉻酸皮膜"],["BE","染黑"],["CA","鉻吊電"],["CB","鉻滾電"],["CC","鎳吊電"],["CD","鎳滾電"],
       ["CE","三價鉻白鋅"],["CF","三價鉻黑鋅"],["CG","三價鉻黃鋅"],["CH","三價鉻五彩"],["CJ","路銹寶"],["CK","除氫"],["CL","達可銹--銀本色"],["CM","達可銹--黑"],
       ["CN","沙丁鎳"],["CP","黑鎳"],["CQ","鍍鐵氟龍--黑"],["CR","三價鉻黑鋅(除氫)"],["CT","沙丁鎳(除氫)"],["CV","三價鉻白鋅(除氫)"],
-      ["DA","烤漆亮黑"],["DB","烤漆霧黑"],["DC","烤漆亮銀"],["DD","烤漆霧銀"],["DE","烤漆白"],["DF","烤漆透明"],["DG","烤漆透明--水標"],["DH","烤漆白--水標"],
-      ["DJ","烤漆亮鈦"],["DK","烤漆霧黑+CNC+印刷"],["DM","烤漆透明--印刷"],["DN","烤漆透明--雷雕"],["DP","烤漆霧黑--印刷"],["DQ","烤漆霧黑--水標"],["DR","烤漆霧黑--雷雕"],
+      ["DA","烤漆--亮黑"],["DB","烤漆--霧黑"],["DC","烤漆--亮銀"],["DD","烤漆--霧銀"],["DE","烤漆--白"],["DF","烤漆--透明"],["DG","烤漆透明--水標"],["DH","烤漆白--水標"],
+      ["DJ","烤漆--亮鈦"],["DK","烤漆霧黑+CNC+印刷"],["DM","烤漆透明--印刷"],["DN","烤漆透明--雷雕"],["DP","烤漆霧黑--印刷"],["DQ","烤漆霧黑--水標"],["DR","烤漆霧黑--雷雕"],
       ["DT","烤漆亮黑--印刷"],["DU","烤漆亮黑--水標"],["DV","烤漆亮黑--雷雕"],["DW","烤漆白--印刷"],["DX","烤漆黑--印刷"],["DY","烤漆霧黑--雷雕+印刷"],["DZ","烤漆--織紋漆"],
-      ["EA","電著亮黑"],["EB","電著霧黑"],["EN","氮化+電著亮黑"],["EP","電著霧黑--印刷"],["EQ","電著霧黑--水標"],["ER","電著霧黑--雷刻"],["ET","電著亮黑--印刷"],["EV","電著亮黑--雷刻"],
+      ["EA","電著--亮黑"],["EB","電著--霧黑"],["EN","氮化+電著亮黑"],["EP","電著霧黑--印刷"],["EQ","電著霧黑--水標"],["ER","電著霧黑--雷刻"],["ET","電著亮黑--印刷"],["EV","電著亮黑--雷刻"],
       ["GA","烤漆霧灰 (水泥灰)"],["GB","烤漆霧灰-印刷"],["GC","烤漆-5度消光黑"],["GD","烤漆-5度消光黑--印刷"],["GE","烤漆-5度消光黑--雷刻"],["GF","烤漆-5度消光黑+砂 (鐵砂黑)--雷刻"],["GG","烤漆-5度消光黑+砂 (鐵砂黑)"],
       ["MA","染黑(不加防鏽油)"],["ME","染黑+電著黑"],["MP","染黑+電著黑+印刷"],["WA","不鏽鋼黑化"],["WB","噴油"],["WC","浸油"],["WD","防鬆膠"],["WE","耐鍊"],["WF","印刷"],["WG","噴字"],
       ["WH","含浸"],["WJ","氣密膠"],["XA","塗膠"],["XB","擦介質"],["XC","除油"],["XD","雷刻"],["XE","上遮噴"],["XF","彈簧成型"],["XG","多工成型 (鏈撥整型)"],["XH","修剪"],["XJ","鎖螺絲"],["XK","拆螺絲"],["XL","拆遮噴"],["XM","貼保護膜"],
@@ -492,6 +608,16 @@
     const manualCopyPN = $("manualCopyPN"), manualCopyDesc = $("manualCopyDesc");
     const btnManualDemo = $("btnManualDemo"), btnManualClear = $("btnManualClear");
 
+    const batchExcel = $("batchExcel");
+    const btnRunBatchCheck = $("btnRunBatchCheck");
+    const btnClearBatch = $("btnClearBatch");
+    const batchResultWrap = $("batchResultWrap");
+    const batchResultBody = $("batchResultBody");
+    const batchNote = $("batchNote");
+    const batchUploadNote = $("batchUploadNote");
+
+    let uploadedBatchRows = [];
+
     function normalizeUpper(s){ return (s ?? "").toString().trim().toUpperCase(); }
     function onlyAlnum(s){ return normalizeUpper(s).replace(/[^0-9A-Z]/g, ""); }
     function safeText(s){ return (s ?? "").toString(); }
@@ -505,6 +631,10 @@
           <span style="color: rgba(15,23,42,.65);">｜${detail}</span>
         </div>
       `;
+    }
+
+    function makeBadge(type, text){
+      return `<span class="badge ${type}">${text}</span>`;
     }
 
     async function copyToClipboard(text, noteEl){
@@ -540,17 +670,14 @@
           const d = PROC_MAP.get(c);
           return `<option value="${c}">${c}　${d}</option>`;
         }).join("");
-      // ✅ 用 title 顯示完整（避免選中項被省略時不知道）
       selectEl.addEventListener("change", ()=>{
         const opt = selectEl.options[selectEl.selectedIndex];
         selectEl.title = opt ? opt.textContent : "";
       });
-      // 初始化 title
       const opt0 = selectEl.options[selectEl.selectedIndex];
       selectEl.title = opt0 ? opt0.textContent : "";
     }
 
-    // ===== Generator =====
     function buildPartNumber(){
       const series = onlyAlnum(elSeries.value).slice(0,2);
       const partNo  = onlyAlnum(elPartNo.value).slice(0,2);
@@ -575,10 +702,7 @@
       const pnHasAllInputs = [elSeries.value, elPartNo.value, elEC.value, elProc.value, elSeq.value]
         .every(v => normalizeUpper(v).length > 0);
       const descLenOk = descLen > 0 && descLen <= 30;
-
       const mustInclude = procDesc ? desc.includes(procDesc) : false;
-
-      // 保存條件：不要求 mustInclude
       const allCompleteForSave = pnHasAllInputs && pnLenOk && descLenOk;
 
       return { pn, pnLen, procCode, procDesc, desc, descLen, pnLenOk, pnHasAllInputs, descLenOk, mustInclude, allCompleteForSave };
@@ -606,10 +730,8 @@
 
       noteGen.innerHTML = notes.length ? notes.join("<br/>") : `<span class="okText">• 檢查通過（或已接近完成）</span>`;
 
-      // 不再擋複製中文（只要有輸入且長度OK）
       btnCopyPN.disabled = !(st.pnLenOk && st.pnLen > 0);
       btnCopyDesc.disabled = !(st.descLenOk && st.descLen > 0);
-
       btnSaveHistory.disabled = !st.allCompleteForSave;
     }
 
@@ -626,8 +748,8 @@
       renderGenerator();
     }
 
-    // ===== History =====
-    const LS_KEY = "ms_partno_history_v2";
+    const LS_KEY = "ms_partno_history_v4";
+
     function loadHistory(){
       try{
         const raw = localStorage.getItem(LS_KEY);
@@ -684,7 +806,6 @@
       });
     }
 
-    // ===== Checker =====
     function renderChecker(){
       const pn = onlyAlnum(manualPN.value);
       const pnLen = pn.length;
@@ -720,14 +841,154 @@
       manualCopyDesc.disabled = !(descLen > 0);
     }
 
-    function clearChecker(){ manualPN.value=""; manualProc.value=""; manualDesc.value=""; renderChecker(); }
+    function clearChecker(){
+      manualPN.value=""; manualProc.value=""; manualDesc.value="";
+      renderChecker();
+    }
+
     function fillCheckerDemo(){
-      manualPN.value="8C24L00CD0"; manualProc.value="CD";
+      manualPN.value="8C24L00CD0";
+      manualProc.value="CD";
       manualDesc.value="8C 左煞把握距調整轉盤 粉末冶金 SMF5040 鎳滾電";
       renderChecker();
     }
 
-    // ===== Tabs =====
+    function parseProcFromPartNumber(partNo){
+      const pn = onlyAlnum(partNo);
+      if (pn.length < 3) return "";
+      return pn.slice(-3, -1);
+    }
+
+    function inspectBatchRow(partNoRaw, descRaw){
+      const pn = onlyAlnum(partNoRaw);
+      const desc = safeText(descRaw).trim();
+      const procCode = parseProcFromPartNumber(pn);
+      const procDesc = PROC_MAP.get(procCode) || "";
+
+      const pnLen = pn.length;
+      const descLen = desc.length;
+      const pnLenOk = pnLen > 0 && pnLen <= 10;
+      const descLenOk = descLen > 0 && descLen <= 30;
+      const includesProc = procDesc ? desc.includes(procDesc) : false;
+
+      // ✅ 三項都 OK 才通過
+      const overallOk = pnLenOk && descLenOk && includesProc;
+
+      return {
+        pn,
+        desc,
+        procCode,
+        procDesc,
+        pnLen,
+        descLen,
+        pnLenOk,
+        descLenOk,
+        includesProc,
+        overallOk
+      };
+    }
+
+    function renderBatchResults(rows){
+      if (!rows.length){
+        batchResultWrap.style.display = "none";
+        batchResultBody.innerHTML = "";
+        batchNote.innerHTML = `<span class="warnText">• 尚無批次結果</span>`;
+        return;
+      }
+
+      batchResultWrap.style.display = "";
+      batchResultBody.innerHTML = rows.map((r, idx) => `
+        <tr>
+          <td>${idx + 1}</td>
+          <td>${escapeHtml(r.pn)}</td>
+          <td>${escapeHtml(r.desc)}</td>
+          <td>${escapeHtml(r.procCode || "-")}</td>
+          <td>${escapeHtml(r.procDesc || "查無對照")}</td>
+          <td>${r.pnLen} / 10 ${r.pnLenOk ? makeBadge("ok","OK") : makeBadge("bad","NG")}</td>
+          <td>${r.descLen} / 30 ${r.descLenOk ? makeBadge("ok","OK") : makeBadge("bad","NG")}</td>
+          <td>${
+            r.procDesc
+              ? (r.includesProc ? makeBadge("ok","OK") : makeBadge("bad","NG"))
+              : makeBadge("bad","NG")
+          }</td>
+          <td>${r.overallOk ? makeBadge("ok","通過") : makeBadge("bad","異常")}</td>
+        </tr>
+      `).join("");
+
+      const total = rows.length;
+      const okCount = rows.filter(r => r.overallOk).length;
+      const badCount = total - okCount;
+
+      batchNote.innerHTML = `
+        <span class="okText">• 共檢查 ${total} 筆</span><br>
+        <span class="okText">• 通過：${okCount} 筆</span><br>
+        <span class="badText">• 異常：${badCount} 筆</span><br>
+        <span class="badText">• 規則：料號字元 OK + 中文敘述字元 OK + 包含製程說明，三項都 OK 才算通過</span>
+      `;
+    }
+
+    function normalizeHeaderName(s){
+      return safeText(s).replace(/\s/g, "").trim();
+    }
+
+    function readBatchExcel(file){
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = function(e){
+          try{
+            const data = new Uint8Array(e.target.result);
+            const workbook = XLSX.read(data, { type: "array" });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const json = XLSX.utils.sheet_to_json(firstSheet, { defval: "" });
+
+            if (!json.length){
+              resolve([]);
+              return;
+            }
+
+            const firstRowKeys = Object.keys(json[0]);
+            const headerMap = {};
+            firstRowKeys.forEach(k => {
+              headerMap[normalizeHeaderName(k)] = k;
+            });
+
+            const pnKey = headerMap["零件料號"];
+            const descKey = headerMap["新零件名稱"];
+
+            if (!pnKey || !descKey){
+              reject(new Error("找不到必要欄位，請確認 Excel 有「零件料號」與「新零件名稱」兩欄"));
+              return;
+            }
+
+            const rows = json
+              .map(row => ({
+                partNo: row[pnKey],
+                desc: row[descKey]
+              }))
+              .filter(r => safeText(r.partNo).trim() || safeText(r.desc).trim());
+
+            resolve(rows);
+          }catch(err){
+            reject(err);
+          }
+        };
+        reader.onerror = function(){
+          reject(new Error("檔案讀取失敗"));
+        };
+        reader.readAsArrayBuffer(file);
+      });
+    }
+
+    function clearBatchResults(){
+      batchExcel.value = "";
+      uploadedBatchRows = [];
+      batchResultBody.innerHTML = "";
+      batchResultWrap.style.display = "none";
+      batchNote.innerHTML = "";
+      batchUploadNote.innerHTML = `需包含欄位名稱：<b>零件料號</b>、<b>新零件名稱</b>`;
+      btnRunBatchCheck.disabled = true;
+    }
+
     function showPanel(which){
       const isGen = which === "gen";
       panelGen.style.display = isGen ? "" : "none";
@@ -738,7 +999,6 @@
       tabCheck.setAttribute("aria-selected", !isGen ? "true" : "false");
     }
 
-    // ===== Bind =====
     function bind(){
       tabGen.addEventListener("click", ()=> showPanel("gen"));
       tabCheck.addEventListener("click", ()=> showPanel("check"));
@@ -756,10 +1016,22 @@
       btnSaveHistory.addEventListener("click", ()=>{
         const st = getGenState();
         if (!st.allCompleteForSave) return;
-        const record = { id:newId(), ts:Date.now(), pn:st.pn, desc:st.desc, proc:st.procCode, procDesc:st.procDesc, includesProcDesc: st.mustInclude };
+        const record = {
+          id:newId(),
+          ts:Date.now(),
+          pn:st.pn,
+          desc:st.desc,
+          proc:st.procCode,
+          procDesc:st.procDesc,
+          includesProcDesc: st.mustInclude
+        };
         const res = historyAdd(record);
-        if (res.ok){ renderHistory(); flashNote(noteGen, "已保存到歷史紀錄"); }
-        else { flashNote(noteGen, "相同內容已存在（未新增）"); }
+        if (res.ok){
+          renderHistory();
+          flashNote(noteGen, "已保存到歷史紀錄");
+        }else{
+          flashNote(noteGen, "相同內容已存在（未新增）");
+        }
       });
 
       btnClearHistory.addEventListener("click", ()=>{
@@ -777,9 +1049,45 @@
       manualCopyDesc.addEventListener("click", ()=> copyToClipboard(manualOutDesc.textContent, noteManual));
       btnManualClear.addEventListener("click", clearChecker);
       btnManualDemo.addEventListener("click", fillCheckerDemo);
+
+      // ✅ 步驟 1：上傳檔案
+      batchExcel.addEventListener("change", async (e)=>{
+        const file = e.target.files && e.target.files[0];
+        if (!file) {
+          uploadedBatchRows = [];
+          btnRunBatchCheck.disabled = true;
+          return;
+        }
+
+        try{
+          uploadedBatchRows = await readBatchExcel(file);
+          btnRunBatchCheck.disabled = uploadedBatchRows.length === 0;
+
+          batchUploadNote.innerHTML = `
+            <span class="okText">• 已載入檔案：${escapeHtml(file.name)}</span><br>
+            <span class="okText">• 可檢查筆數：${uploadedBatchRows.length} 筆</span>
+          `;
+        }catch(err){
+          uploadedBatchRows = [];
+          btnRunBatchCheck.disabled = true;
+          batchUploadNote.innerHTML = `<span class="badText">• ${escapeHtml(err.message || String(err))}</span>`;
+        }
+      });
+
+      // ✅ 步驟 2：執行檢查
+      btnRunBatchCheck.addEventListener("click", ()=>{
+        if (!uploadedBatchRows.length){
+          batchNote.innerHTML = `<span class="badText">• 尚未上傳可用資料</span>`;
+          return;
+        }
+
+        const inspected = uploadedBatchRows.map(r => inspectBatchRow(r.partNo, r.desc));
+        renderBatchResults(inspected);
+      });
+
+      btnClearBatch.addEventListener("click", clearBatchResults);
     }
 
-    // ===== Init =====
     initProcSelect(elProc);
     initProcSelect(manualProc);
     bind();
