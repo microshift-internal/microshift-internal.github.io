@@ -321,7 +321,7 @@
     <div class="title">
       <div>
         <h1>料號工具</h1>
-        <div class="hint">BOM 批次檢查已獨立到檢查工具最下方，並改成【上傳檔案】→【執行檢查】兩步驟；批次檢查必須三項都 OK 才算通過。</div>
+        <div class="hint">更新版：料號檢查規則已改成「料號字元必須等於 10 碼」。BOM 批次檢查三項都 OK 才算通過。</div>
       </div>
 
       <div class="tabs" role="tablist" aria-label="工具切換">
@@ -500,7 +500,7 @@
           </div>
         </div>
 
-        <!-- ✅ 獨立在最下面的 BOM 批次檢查 -->
+        <!-- BOM 批次檢查 -->
         <div class="card batchSection">
           <h2>BOM 批次檢查</h2>
 
@@ -524,10 +524,10 @@
               </div>
               <div class="note">
                 檢查規則：<br>
-                1. 料號字元 ≤ 10<br>
+                1. 料號字元 = 10<br>
                 2. 中文敘述字元 ≤ 30<br>
                 3. 中文敘述必須包含製程說明<br>
-                <span class="badText">※ 三項都 OK 才顯示「通過」，其餘一律顯示「異常」</span>
+                <span class="badText">※ 三項都 OK 才顯示「通過」，其他狀況一律顯示「異常」</span>
               </div>
             </div>
 
@@ -698,7 +698,7 @@
       const desc = safeText(elDesc.value).trim();
       const descLen = desc.length;
 
-      const pnLenOk = pnLen > 0 && pnLen <= 10;
+      const pnLenOk = pnLen === 10;
       const pnHasAllInputs = [elSeries.value, elPartNo.value, elEC.value, elProc.value, elSeq.value]
         .every(v => normalizeUpper(v).length > 0);
       const descLenOk = descLen > 0 && descLen <= 30;
@@ -717,7 +717,7 @@
 
       const includeState = st.procDesc ? (st.mustInclude ? "ok" : "bad") : "warn";
       statusArea.innerHTML = [
-        makePill(st.pnLenOk ? "ok" : (st.pnLen===0 ? "warn" : "bad"), `料號字元：${st.pnLen} / 10`, st.pnLenOk ? "OK" : (st.pnLen===0 ? "尚未產生" : "超過10碼")),
+        makePill(st.pnLenOk ? "ok" : (st.pnLen===0 ? "warn" : "bad"), `料號字元：${st.pnLen} / 10`, st.pnLenOk ? "OK" : (st.pnLen===0 ? "尚未產生" : "需等於10碼")),
         makePill(includeState, `製程檢查：${st.procDesc ? "需包含" : "無對照"}`, st.procDesc ? (st.mustInclude ? "包含製程" : "未包含製程") : "請先選製程碼"),
         makePill((st.descLen===0) ? "warn" : (st.descLenOk ? "ok" : "bad"), `中文字元：${st.descLen} / 30`, (st.descLen===0) ? "尚未輸入" : (st.descLenOk ? "OK" : "超過30碼")),
       ].join("");
@@ -725,7 +725,7 @@
       const notes = [];
       if (!st.pnHasAllInputs) notes.push("• 部分欄位尚未填完（仍可先預覽料號）");
       if (st.procDesc && st.desc && !st.mustInclude) notes.push(`• 中文敘述未包含製程說明：「${st.procDesc}」（不影響複製/保存）`);
-      if (st.pnLen > 10) notes.push("• 料號超過 10 碼：請縮短特徵碼或檢查輸入。");
+      if (st.pnLen !== 10 && st.pnLen !== 0) notes.push("• 料號字元需等於 10 碼。");
       if (st.descLen > 30) notes.push("• 中文敘述超過 30 碼。");
 
       noteGen.innerHTML = notes.length ? notes.join("<br/>") : `<span class="okText">• 檢查通過（或已接近完成）</span>`;
@@ -748,7 +748,7 @@
       renderGenerator();
     }
 
-    const LS_KEY = "ms_partno_history_v4";
+    const LS_KEY = "ms_partno_history_v5";
 
     function loadHistory(){
       try{
@@ -817,7 +817,7 @@
       const desc = safeText(manualDesc.value).trim();
       const descLen = desc.length;
 
-      const pnLenOk = pnLen > 0 && pnLen <= 10;
+      const pnLenOk = pnLen === 10;
       const descLenOk = descLen > 0 && descLen <= 30;
       const mustInclude = procDesc ? desc.includes(procDesc) : false;
       const includeState = procDesc ? (mustInclude ? "ok" : "bad") : "warn";
@@ -826,13 +826,13 @@
       manualOutDesc.textContent = desc || "—";
 
       manualStatusArea.innerHTML = [
-        makePill(pnLenOk ? "ok" : (pnLen===0 ? "warn" : "bad"), `料號字元：${pnLen} / 10`, pnLenOk ? "OK" : (pnLen===0 ? "尚未輸入" : "超過10碼")),
+        makePill(pnLenOk ? "ok" : (pnLen===0 ? "warn" : "bad"), `料號字元：${pnLen} / 10`, pnLenOk ? "OK" : (pnLen===0 ? "尚未輸入" : "需等於10碼")),
         makePill(includeState, `製程檢查：${procDesc ? "需包含" : "無對照"}`, procDesc ? (mustInclude ? "包含製程" : "未包含製程") : "請先選製程碼"),
         makePill((descLen===0) ? "warn" : (descLenOk ? "ok" : "bad"), `中文字元：${descLen} / 30`, (descLen===0) ? "尚未輸入" : (descLenOk ? "OK" : "超過30碼")),
       ].join("");
 
       const notes = [];
-      if (pnLen > 10) notes.push("• 料號已超過 10 碼");
+      if (pnLen !== 10 && pnLen !== 0) notes.push("• 料號字元需等於 10 碼");
       if (procDesc && desc && !mustInclude) notes.push(`• 中文敘述未包含製程說明：「${procDesc}」（仍可複製）`);
       if (descLen > 30) notes.push("• 中文敘述已超過 30 碼");
       noteManual.innerHTML = notes.length ? notes.join("<br/>") : `<span class="okText">• 檢查通過（或已接近完成）</span>`;
@@ -867,11 +867,10 @@
 
       const pnLen = pn.length;
       const descLen = desc.length;
-      const pnLenOk = pnLen > 0 && pnLen <= 10;
+      const pnLenOk = pnLen === 10;
       const descLenOk = descLen > 0 && descLen <= 30;
       const includesProc = procDesc ? desc.includes(procDesc) : false;
 
-      // ✅ 三項都 OK 才通過
       const overallOk = pnLenOk && descLenOk && includesProc;
 
       return {
@@ -923,7 +922,7 @@
         <span class="okText">• 共檢查 ${total} 筆</span><br>
         <span class="okText">• 通過：${okCount} 筆</span><br>
         <span class="badText">• 異常：${badCount} 筆</span><br>
-        <span class="badText">• 規則：料號字元 OK + 中文敘述字元 OK + 包含製程說明，三項都 OK 才算通過</span>
+        <span class="badText">• 規則：料號字元必須等於 10、中文敘述字元 OK、包含製程說明，三項都 OK 才算通過</span>
       `;
     }
 
@@ -1050,7 +1049,6 @@
       btnManualClear.addEventListener("click", clearChecker);
       btnManualDemo.addEventListener("click", fillCheckerDemo);
 
-      // ✅ 步驟 1：上傳檔案
       batchExcel.addEventListener("change", async (e)=>{
         const file = e.target.files && e.target.files[0];
         if (!file) {
@@ -1074,7 +1072,6 @@
         }
       });
 
-      // ✅ 步驟 2：執行檢查
       btnRunBatchCheck.addEventListener("click", ()=>{
         if (!uploadedBatchRows.length){
           batchNote.innerHTML = `<span class="badText">• 尚未上傳可用資料</span>`;
