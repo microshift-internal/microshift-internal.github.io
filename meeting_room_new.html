@@ -58,6 +58,12 @@
             display: flex;
             flex-direction: column;
             align-items: center;
+            transition: max-width 0.3s ease; /* 平滑過渡 */
+        }
+
+        /* 當全覽模式啟動時，允許容器變寬 */
+        .container.wide-mode {
+            max-width: 1400px;
         }
 
         .announcement {
@@ -184,6 +190,29 @@
             box-shadow: 0 4px 15px rgba(0,0,0,0.1);
         }
 
+        /* 一次瀏覽全部的格狀佈局 */
+        .all-rooms-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            width: 100%;
+        }
+
+        @media screen and (min-width: 1200px) {
+            .all-rooms-grid {
+                grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+                gap: 30px;
+                justify-content: center; /* 格狀項目置中 */
+            }
+            /* 讓全覽模式在寬螢幕下可以撐開容器並置中 */
+            #all.active {
+                max-width: 1400px;
+                width: 95vw;
+                margin-left: auto;
+                margin-right: auto;
+            }
+        }
+
         footer {
             margin-top: 40px;
             padding-bottom: 40px;
@@ -212,6 +241,7 @@
                 <button class="tab-btn" onclick="openTab(event, 'new_room')">內部會議室</button>
                 <button class="tab-btn" onclick="openTab(event, 'factory2')">二廠會議室</button>
                 <button class="tab-btn" onclick="openTab(event, 'visitor')">二廠訪客登記</button>
+                <button class="tab-btn" onclick="openTab(event, 'all')">全覽</button>
             </nav>
 
             <!-- 使用說明 -->
@@ -220,6 +250,42 @@
                     <h2>預約流程說明</h2>
                     <p>請先確認下方各會議室的空檔時間，再點擊對應按鈕進行預約登記。</p>
                     <img src="index.files/meetroom_sample.png" alt="預約範例" class="sample-img">
+                </div>
+            </div>
+
+            <!-- 一次瀏覽全部 -->
+            <div id="all" class="tab-content">
+                <div class="all-rooms-grid">
+                    <div class="room-card">
+                        <h3>大會議室 (一廠)</h3>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                    <div class="room-card">
+                        <h3>小會議室 (一廠)</h3>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                    <div class="room-card">
+                        <h3>內部會議室 (一廠)</h3>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                    <div class="room-card">
+                        <h3>二廠會議室</h3>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
+                    <div class="room-card">
+                        <h3>二廠訪客登記</h3>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
                 </div>
             </div>
 
@@ -317,6 +383,14 @@
             // 顯示目前點選的內容與 active 狀態
             document.getElementById(tabName).classList.add("active");
             evt.currentTarget.classList.add("active");
+
+            // 處理全覽模式的容器寬度
+            const container = document.querySelector('.container');
+            if (tabName === 'all') {
+                container.classList.add('wide-mode');
+            } else {
+                container.classList.remove('wide-mode');
+            }
         }
     </script>
 </body>
