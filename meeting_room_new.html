@@ -126,7 +126,7 @@
         .room-card {
             background: var(--card-bg);
             border-radius: 12px;
-            padding: 25px;
+            padding: 20px;
             box-shadow: 0 8px 30px rgba(0,0,0,0.08);
             margin-bottom: 30px;
             text-align: center;
@@ -151,26 +151,26 @@
             box-shadow: 0 6px 15px rgba(255, 0, 212, 0.3);
         }
 
+        /* 行事曆容器優化：解決手機版高度不足問題 */
         .calendar-wrapper {
-            position: relative;
-            padding-bottom: 75%; /* 4:3 Aspect Ratio */
-            height: 0;
-            overflow: hidden;
+            width: 100%;
+            height: 550px; /* 手機版預設高度提高，確保能看到內容 */
             border-radius: 8px;
             border: 1px solid #eee;
+            overflow: hidden;
+            -webkit-overflow-scrolling: touch; /* 優化 iOS 捲動 */
         }
 
         @media screen and (min-width: 768px) {
             .calendar-wrapper {
-                padding-bottom: 600px;
-                height: 600px;
+                height: 650px; /* 電腦版高度同步稍微增加 */
+            }
+            .room-card {
+                padding: 30px;
             }
         }
 
         .calendar-wrapper iframe {
-            position: absolute;
-            top: 0;
-            left: 0;
             width: 100%;
             height: 100%;
             border: 0;
@@ -317,9 +317,6 @@
             // 顯示目前點選的內容與 active 狀態
             document.getElementById(tabName).classList.add("active");
             evt.currentTarget.classList.add("active");
-
-            // 切換時讓頁面稍微捲動到頂部（如果需要）
-            // window.scrollTo({ top: 0, behavior: 'smooth' });
         }
     </script>
 </body>
