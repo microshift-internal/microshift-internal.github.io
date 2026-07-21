@@ -1,0 +1,482 @@
+﻿<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>旋轉指針</title>
+  <style>
+    /* body: 使用彈性容器置中整個頁面內容 */
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      background: radial-gradient(circle at top, #f4f9ff 0%, #d4e4f5 45%, #d9e8ef 100%);
+      color: #1f354d;
+    }
+
+    /* .panel: 畫面中央的卡片容器，包覆儀表盤與控制區塊 */
+    .panel {
+      width: min(520px, calc(100vw - 32px));
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 24px 48px rgba(23, 51, 89, 0.12);
+      text-align: center;
+    }
+
+    /* h1: 主標題樣式 */
+    h1 {
+      margin: 0 0 16px;
+      font-size: clamp(1.8rem, 2.3vw, 2.4rem);
+    }
+
+    /* .dial: 代表儀表盤的圓形元素 */
+    .dial {
+      position: relative;
+      width: 320px;
+      height: 320px;
+      margin: 0 auto 24px;
+      border-radius: 50%;
+      background: radial-gradient(circle at top left, #ffffff 0%, #e6eef7 40%, #c6d6e8 100%);
+      box-shadow: inset 0 0 0 1px rgba(34, 67, 120, 0.05), inset 0 24px 48px rgba(255, 255, 255, 0.55);
+    }
+
+    /* .dial::before: 顯示儀表盤內層光暈效果 */
+    .dial::before {
+      content: "";
+      position: absolute;
+      inset: 28px;
+      border-radius: 50%;
+      background: radial-gradient(circle at center, rgba(36, 68, 128, 0.12) 0%, transparent 62%);
+    }
+
+    /* .pointer: 可旋轉的指針物件 */
+    .pointer {
+      position: absolute;
+      left: 50%;
+      bottom: 50%;
+      width: 10px;
+      height: 40%;
+      background: linear-gradient(180deg, #2b4a78 0%, #0f2142 100%);
+      transform-origin: 50% 100%;
+      transform: translateX(-50%) rotate(0deg);
+      border-radius: 10px 10px 4px 4px;
+      box-shadow: 0 10px 24px rgba(27, 55, 98, 0.22);
+      z-index: 1;
+      transition: transform 0.35s ease;
+    }
+
+    /* .pivot: 指針中心的圓點，用來表現指針軸心 */
+    .pivot {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      width: 26px;
+      height: 26px;
+      transform: translate(-50%, -50%);
+      border-radius: 50%;
+      background: radial-gradient(circle, #f5f7fb 0%, #b1c5dc 100%);
+      border: 3px solid #4a6f9a;
+      box-shadow: inset 0 0 0 1px #ffffff, 0 10px 24px rgba(25, 60, 103, 0.14);
+      z-index: 2;
+    }
+
+    /* .angle-display: 顯示目前角°的文字區塊 */
+    .angle-display {
+      font-size: 1.1rem;
+      margin: 18px 0 12px;
+      letter-spacing: 0.04em;
+    }
+
+    /* .controls: 滑桿與標籤的容器 */
+    .controls {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+    }
+
+    /* .button-row: 旋轉按鈕群，用不同方式操作指針 */
+    .button-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(120px, 1fr));
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    /* .layout: 讓 panel 與歷史紀錄 panel 並排顯示 */
+    .layout {
+      display: grid;
+      gap: 20px;
+    }
+
+    @media (min-width: 1000px) {
+      .layout {
+        grid-template-columns: minmax(360px, 1fr) 320px;
+        align-items: stretch;
+      }
+    }
+
+    /* .panel: 畫面中央的卡片容器，包含儀表盤與控制區塊 */
+    .panel {
+      width: 100%;
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 24px 48px rgba(23, 51, 89, 0.12);
+      text-align: center;
+    }
+
+    /* .status-panel: 與 panel 並排的歷史紀錄區塊 */
+    .status-panel {
+      padding: 24px;
+      border-radius: 24px;
+      background: rgba(255, 255, 255, 0.94);
+      box-shadow: 0 24px 48px rgba(23, 51, 89, 0.12);
+      border: 1px solid rgba(196, 211, 224, 0.7);
+      display: flex;
+      flex-direction: column;
+      min-height: 100%;
+      height: 100%;
+    }
+
+    .status-panel .status-title {
+      margin-bottom: 14px;
+    }
+
+    .history-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      overflow-y: auto;
+      flex: 1;
+      max-height: none;
+    }
+
+    .history-list li {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: #f5f7ff;
+      color: #2f4f7b;
+      border: 1px solid rgba(57, 95, 158, 0.12);
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    .status-title {
+      margin: 0 0 10px;
+      font-size: 1rem;
+      font-weight: 700;
+      color: #26416d;
+    }
+
+    .history-list {
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      display: grid;
+      gap: 10px;
+      max-height: 260px;
+      overflow-y: auto;
+    }
+
+    .history-list li {
+      padding: 10px 12px;
+      border-radius: 14px;
+      background: white;
+      color: #2f4f7b;
+      border: 1px solid rgba(57, 95, 158, 0.12);
+      box-shadow: 0 4px 12px rgba(92, 120, 161, 0.08);
+      font-size: 0.95rem;
+      line-height: 1.4;
+    }
+
+    /* button: 操作按鈕外觀 */
+    button {
+      padding: 12px 16px;
+      border: none;
+      border-radius: 14px;
+      background: linear-gradient(135deg, #4f7bc1 0%, #315b99 100%);
+      color: #ffffff;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+    }
+
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 20px rgba(49, 91, 153, 0.22);
+    }
+
+    button:active {
+      transform: translateY(0);
+      box-shadow: 0 6px 12px rgba(49, 91, 153, 0.18);
+    }
+
+    /* .clear-button: 歷史紀錄清除按鈕 */
+    .clear-button {
+      width: 100%;
+      margin-bottom: 16px;
+      padding: 12px 16px;
+      border: none;
+      border-radius: 14px;
+      background: #e9edf7;
+      color: #2f4f7b;
+      font-size: 0.95rem;
+      cursor: pointer;
+      box-shadow: inset 0 0 0 1px rgba(82, 115, 184, 0.14);
+      transition: background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
+    }
+
+    .clear-button:hover {
+      background: #dfe6f3;
+      transform: translateY(-1px);
+    }
+
+    .clear-button:active {
+      background: #d5dfee;
+    }
+
+    /* 隱藏第一個、第四個按鈕與清除紀錄按鈕 */
+    #clockwiseButton,
+    #randomButton,
+    #clearHistoryButton {
+      display: none;
+    }
+
+    /* label: 滑桿說明文字 */
+    label {
+      font-size: 0.95rem;
+      color: #486184;
+    }
+
+    /* input[type="range"]: 角°滑桿控制樣式 */
+    input[type="range"] {
+      width: 100%;
+      accent-color: #3c6bb0;
+    }
+
+    /* .footer: 補充說明文字 */
+    .footer {
+      margin-top: 16px;
+      color: #5d6f88;
+      font-size: 0.88rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="layout">
+    <!-- .panel: 主體卡片容器 -->
+    <div class="panel">
+      <!-- h1: 頁面標題 -->
+      <h1>旋轉指針</h1>
+
+      <!-- .dial: 儀表盤圓形背景 -->
+      <div class="dial">
+        <!-- .pointer: 空的指針元素，會由 JavaScript 旋轉 -->
+        <div class="pointer" id="pointer"></div>
+        <!-- .pivot: 指針中心點，視覺上讓指針像安裝在軸心上 -->
+        <div class="pivot"></div>
+      </div>
+
+      <!-- .angle-display: 角°讀值文字顯示 -->
+      <div class="angle-display">角°：<strong id="angleValue">0°</strong></div>
+
+      <!-- .controls: 包含滑桿與按鈕控制 -->
+      <div class="controls">
+        <!-- label: 滑桿用途說明 -->
+        <label for="angleRange">拖移滑桿以調整指針角°</label>
+        <!-- input#angleRange: 可拖曳的角°控制器 -->
+        <input id="angleRange" type="range" min="0" max="359" value="0" />
+
+        <!-- .button-row: 以不同方式控制指針旋轉的按鈕群 -->
+        <div class="button-row">
+          <button type="button" id="clockwiseButton">順時針 +10°±1°</button>
+          <button type="button" id="counterClockwiseButton">舊方法:轉10°，容許±1°，若超過則校正</button>
+          <button type="button" id="directButton">新方法:轉10°+3°，再往回校正到10°±1</button>
+          <button type="button" id="randomButton">隨機角°</button>
+        </div>
+      </div>
+
+      <!-- .footer: 額外操作提示文字 -->
+      <div class="footer">按一下滑桿下方的範圍控制可設定旋轉角°</div>
+    </div>
+
+    <!-- .status-panel: 與 panel 並排的歷史紀錄區塊 -->
+    <aside class="status-panel">
+      <div class="status-title">動作紀錄</div>
+      <button type="button" id="clearHistoryButton" class="clear-button">清除紀錄</button>
+      <ul id="processHistory" class="history-list">
+        <li>等待操作</li>
+      </ul>
+    </aside>
+  </div>
+
+  <script>
+    // pointer: 指針 DOM 節點，用於變更旋轉角°
+    const pointer = document.getElementById('pointer');
+    // angleValue: 顯示目前角°值的 DOM 節點
+    const angleValue = document.getElementById('angleValue');
+    // angleRange: 用戶拖曳的範圍輸入元件
+    const angleRange = document.getElementById('angleRange');
+    // processHistory: 歷史紀錄列表，用於顯示每個執行步驟
+    const processHistory = document.getElementById('processHistory');
+    // 四個按鈕，分別以不同方式控制指針旋轉
+    const clockwiseButton = document.getElementById('clockwiseButton');
+    const counterClockwiseButton = document.getElementById('counterClockwiseButton');
+    const directButton = document.getElementById('directButton');
+    const randomButton = document.getElementById('randomButton');
+    const clearHistoryButton = document.getElementById('clearHistoryButton');
+
+    /**
+     * updatePointer: 更新指針旋轉與角°顯示
+     * @param {number|string} angle - 要設定的角°值
+     */
+    function updatePointer(angle) {
+      const normalizedAngle = Number(angle) % 360;
+      const wrappedAngle = normalizedAngle < 0 ? normalizedAngle + 360 : normalizedAngle;
+      pointer.style.transform = `translateX(-50%) rotate(${wrappedAngle}deg)`;
+      angleValue.textContent = `${wrappedAngle}°`;
+      angleRange.value = wrappedAngle;
+    }
+
+    // 新增歷史紀錄條目並滾動到底部
+    function addProcessHistory(text) {
+      const entry = document.createElement('li');
+      entry.textContent = text;
+      processHistory.appendChild(entry);
+      processHistory.scrollTop = processHistory.scrollHeight;
+    }
+
+    function clearProcessHistory() {
+      processHistory.innerHTML = '';
+      addProcessHistory('等待操作');
+    }
+
+    // 將所有可互動控制啟用/停用，避免動畫過程中使用者干擾
+    function setControlsEnabled(enabled) {
+      angleRange.disabled = !enabled;
+      clockwiseButton.disabled = !enabled;
+      counterClockwiseButton.disabled = !enabled;
+      directButton.disabled = !enabled;
+      randomButton.disabled = !enabled;
+      const opacity = enabled ? 1 : 0.65;
+      angleRange.style.opacity = opacity;
+      clockwiseButton.style.opacity = opacity;
+      counterClockwiseButton.style.opacity = opacity;
+      directButton.style.opacity = opacity;
+      randomButton.style.opacity = opacity;
+    }
+
+    // getCurrentAngle: 取得目前的角°
+    function getCurrentAngle() {
+      return Number(angleRange.value);
+    }
+
+    // normalizeAngle: 將角°標準化到 0~359 范圍
+    function normalizeAngle(angle) {
+      const normalized = Number(angle) % 360;
+      return normalized < 0 ? normalized + 360 : normalized;
+    }
+
+    // animateToAngle: 以動畫過渡到目標角°，完成後執行 callback
+    function animateToAngle(targetAngle, callback) {
+      updatePointer(targetAngle);
+      setTimeout(() => {
+        if (typeof callback === 'function') {
+          callback();
+        }
+      }, 420); // 給 CSS 轉場一個緩衝時間
+    }
+
+    // 監聽滑桿輸入事件，當值變更時更新畫面
+    angleRange.addEventListener('input', (event) => {
+      updatePointer(event.target.value);
+    });
+
+    // 按鈕 1：順時針轉 10 °，並加上隨機正負 1 °的偏移
+    clockwiseButton.addEventListener('click', () => {
+      clearProcessHistory();
+      const delta = 10 + (Math.random() < 0.5 ? -1 : 1);
+      updatePointer(getCurrentAngle() + delta);
+      addProcessHistory(`按鈕 1：順時針轉 ${delta}°，目前 ${normalizeAngle(getCurrentAngle())}°`);
+    });
+
+    // 按鈕 2：順時針轉 10 °，並加上隨機正負 3 °的偏移，完成後若與起始角°差距不是 8~11 °則校準為 10 °
+    counterClockwiseButton.addEventListener('click', () => {
+      clearProcessHistory();
+      const startAngle = getCurrentAngle();
+      const randomOffset = Math.floor(Math.random() * 7) - 3; // -3 到 +3
+      const firstAngle = startAngle + 10 + randomOffset;
+      const firstDelta = firstAngle - startAngle;
+      const firstAngleNormalized = normalizeAngle(firstAngle);
+      const startAngleNormalized = normalizeAngle(startAngle);
+      const needsAdjust = Math.abs(firstDelta) < 8 || Math.abs(firstDelta) > 11;
+      const finalAngle = needsAdjust ? startAngle + 10 : firstAngle;
+      const finalAngleNormalized = normalizeAngle(finalAngle);
+
+      addProcessHistory(`步驟 1：先順時針轉 ${firstDelta}°，目標 ${firstAngleNormalized}°`);
+      setControlsEnabled(false);
+
+      animateToAngle(firstAngle, () => {
+        if (needsAdjust) {
+          addProcessHistory(`步驟 2：檢查結果不在範圍，校準到 ${finalAngleNormalized}°`);
+          animateToAngle(finalAngle, () => {
+            addProcessHistory(`完成：從 ${startAngleNormalized}° 到 ${finalAngleNormalized}°`);
+            setControlsEnabled(true);
+          });
+        } else {
+          addProcessHistory(`完成：從 ${startAngleNormalized}° 到 ${finalAngleNormalized}°`);
+          setControlsEnabled(true);
+        }
+      });
+    });
+
+    // 按鈕 3：先順時針轉 12 ° ±1 °，完成後再逆時針校準到與起始角°相差 10 °
+    directButton.addEventListener('click', () => {
+      clearProcessHistory();
+      const startAngle = getCurrentAngle();
+      const randomOffset = Math.random() < 0.5 ? -1 : 1;
+      const firstAngle = startAngle + 13 + randomOffset;
+      const firstAngleNormalized = normalizeAngle(firstAngle);
+      const startAngleNormalized = normalizeAngle(startAngle);
+      const finalAngle = startAngle + 10;
+      const finalAngleNormalized = normalizeAngle(finalAngle);
+
+      addProcessHistory(`步驟 1：順時針轉 ${12 + randomOffset}°，目標 ${firstAngleNormalized}°`);
+      setControlsEnabled(false);
+
+      animateToAngle(firstAngle, () => {
+        addProcessHistory(`步驟 2：再逆時針轉回 ${finalAngleNormalized}°（與起始 ${startAngleNormalized}° 差 10°）`);
+        animateToAngle(finalAngle, () => {
+          addProcessHistory(`完成：從 ${startAngleNormalized}° 到 ${finalAngleNormalized}°`);
+          setControlsEnabled(true);
+        });
+      });
+    });
+
+    // 按鈕 4：隨機角°，立即轉到一個隨機值
+    randomButton.addEventListener('click', () => {
+      clearProcessHistory();
+      const randomAngle = Math.floor(Math.random() * 360);
+      updatePointer(randomAngle);
+      addProcessHistory(`按鈕 4：已轉到 ${randomAngle}°`);
+    });
+
+    // 按鈕 5：清除歷史紀錄
+    clearHistoryButton.addEventListener('click', () => {
+      clearProcessHistory();
+      addProcessHistory('已清除歷史紀錄');
+    });
+
+    // 初始化指針位置，確保頁面載入時顯示正確角°
+    updatePointer(angleRange.value);
+  </script>
+</body>
+</html>
+
