@@ -252,9 +252,12 @@
         <div class="tabs-container">
             <nav class="tabs-nav">
                 <button class="tab-btn active" onclick="openTab(event, 'info')">使用說明</button>
-                <button class="tab-btn" onclick="openTab(event, 'large')">小會議室(停用)</button>
-                <button class="tab-btn" onclick="openTab(event, 'small')">本場2樓會議室</button>
-                <!-- <button class="tab-btn" onclick="openTab(event, 'new_room')">內部會議室</button> -->
+                <button class="tab-btn" onclick="openTab(event, 'speed15')">15 Speed</button>
+                <button class="tab-btn" onclick="openTab(event, 'speed30')">30 Speed</button>
+                <button class="tab-btn" onclick="openTab(event, 'inter12')">Inter 12 Speed</button>
+                <button class="tab-btn" onclick="openTab(event, 'speed4')">4 Speed</button>
+                <button class="tab-btn" onclick="openTab(event, 'speed8')">8 Speed</button>
+                <button class="tab-btn" onclick="openTab(event, 'inter6')">Inter 6 Speed</button>
                 <button class="tab-btn" onclick="openTab(event, 'factory2')">二廠會議室</button>
                 <button class="tab-btn" onclick="openTab(event, 'visitor')">二廠訪客登記</button>
                 <button class="tab-btn" onclick="openTab(event, 'all')">全覽</button>
@@ -274,32 +277,67 @@
                 <div class="all-rooms-grid">
 
                     <div class="room-card">
-                        <h3>小會議室(停用)</h3>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe
-                                src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                                loading="lazy"></iframe>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <h3>本場2樓會議室</h3>
+                        <h3>15 Speed</h3>
+                        <a href="https://calendar.google.com/calendar/u/0?cid=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com"
+                            target="_blank" rel="noopener noreferrer" class="btn-register">                            將會議室加入行事曆</a>
                         <div class="calendar-wrapper" style="height: 450px;">
                             <iframe
                                 src="https://calendar.google.com/calendar/embed?src=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com&ctz=Asia%2FTaipei"
                                 loading="lazy"></iframe>
                         </div>
                     </div>
-                    <!--
+
                     <div class="room-card">
-                        <h3>內部會議室 (一廠)</h3>
+                        <h3>30 Speed</h3>
+                        <a href="https://calendar.google.com/calendar/u/0?cid=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com"
+                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
                         <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe src="https://calendar.google.com/calendar/embed?src=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                            <iframe
+                                src="https://calendar.google.com/calendar/embed?src=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com&ctz=Asia%2FTaipei"
+                                loading="lazy"></iframe>
                         </div>
                     </div>
-                    -->
+
+                    <div class="room-card">
+                        <h3>Inter 12 Speed</h3>
+                        <a href="https://calendar.google.com/calendar/u/0?cid=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com"
+                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="room-card">
+                        <h3>4 Speed</h3>
+                        <a href="https://calendar.google.com/calendar/u/0?cid=d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6%40group.calendar.google.com"
+                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="room-card">
+                        <h3>8 Speed</h3>
+                        <a href="https://calendar.google.com/calendar/u/0?cid=334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c%40group.calendar.google.com"
+                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
+                    <div class="room-card">
+                        <h3>Inter 6 Speed</h3>
+                        <a href="https://calendar.google.com/calendar/u/0?cid=0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f%40group.calendar.google.com"
+                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
+                        <div class="calendar-wrapper" style="height: 450px;">
+                            <iframe src="https://calendar.google.com/calendar/embed?src=0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        </div>
+                    </div>
+
                     <div class="room-card">
                         <h3>二廠會議室</h3>
+                        <a href="https://calendar.google.com/calendar/u/0?cid=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com"
+                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
                         <div class="calendar-wrapper" style="height: 450px;">
                             <iframe
                                 src="https://calendar.google.com/calendar/embed?src=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com&ctz=Asia%2FTaipei"
@@ -308,6 +346,8 @@
                     </div>
                     <div class="room-card">
                         <h3>二廠訪客登記</h3>
+                        <a href="https://calendar.google.com/calendar/u/0?cid=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com"
+                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
                         <div class="calendar-wrapper" style="height: 450px;">
                             <iframe
                                 src="https://calendar.google.com/calendar/embed?src=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com&ctz=Asia%2FTaipei"
@@ -317,28 +357,12 @@
                 </div>
             </div>
 
-            <!-- 小會議室 -->
-
-            <div id="large" class="tab-content">
+            <!-- 15 Speed -->
+            <div id="speed15" class="tab-content">
                 <div class="room-card">
-                    <h2>小會議室(停用)</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com"
-                        target="_blank" class="btn-register">點此開啟登記視窗</a>
-                    <div class="calendar-wrapper">
-                        <iframe
-                            src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                            loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-
-            <!-- 本場2樓會議室 -->
-            <div id="small" class="tab-content">
-                <div class="room-card">
-                    <h2>本場2樓會議室</h2>
+                    <h2>15 Speed</h2>
                     <a href="https://calendar.google.com/calendar/u/0?cid=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com"
-                        target="_blank" class="btn-register">點此開啟登記視窗</a>
+                        target="_blank" class="btn-register">將會議室加入行事曆</a>
                     <div class="calendar-wrapper">
                         <iframe
                             src="https://calendar.google.com/calendar/embed?src=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com&ctz=Asia%2FTaipei"
@@ -347,25 +371,70 @@
                 </div>
             </div>
 
-            <!-- 內部會議室 (已隱藏) -->
-            <!--
-            <div id="new_room" class="tab-content">
+            <!-- 30 Speed -->
+            <div id="speed30" class="tab-content">
                 <div class="room-card">
-                    <h2>內部會議室 (一廠)</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com" target="_blank" class="btn-register" style="background-color: var(--info-color); box-shadow: 0 4px 10px rgba(23, 162, 184, 0.2);">點此開啟登記視窗</a>
+                    <h2>30 Speed</h2>
+                    <a href="https://calendar.google.com/calendar/u/0?cid=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com"
+                        target="_blank" class="btn-register">將會議室加入行事曆</a>
                     <div class="calendar-wrapper">
-                        <iframe src="https://calendar.google.com/calendar/embed?src=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                        <iframe
+                            src="https://calendar.google.com/calendar/embed?src=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com&ctz=Asia%2FTaipei"
+                            loading="lazy"></iframe>
                     </div>
                 </div>
             </div>
-            -->
+
+            <!-- Inter 12 Speed -->
+            <div id="inter12" class="tab-content">
+                <div class="room-card">
+                    <h2>Inter 12 Speed</h2>
+                    <a href="https://calendar.google.com/calendar/u/0?cid=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com" target="_blank" class="btn-register" style="background-color: var(--info-color); box-shadow: 0 4px 10px rgba(23, 162, 184, 0.2);">將會議室加入行事曆</a>
+                    <div class="calendar-wrapper">
+                        <iframe src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 4 Speed -->
+            <div id="speed4" class="tab-content">
+                <div class="room-card">
+                    <h2>4 Speed</h2>
+                    <a href="https://calendar.google.com/calendar/u/0?cid=d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6%40group.calendar.google.com" target="_blank" class="btn-register">將會議室加入行事曆</a>
+                    <div class="calendar-wrapper">
+                        <iframe src="https://calendar.google.com/calendar/embed?src=d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 8 Speed -->
+            <div id="speed8" class="tab-content">
+                <div class="room-card">
+                    <h2>8 Speed</h2>
+                    <a href="https://calendar.google.com/calendar/u/0?cid=334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c%40group.calendar.google.com" target="_blank" class="btn-register">將會議室加入行事曆</a>
+                    <div class="calendar-wrapper">
+                        <iframe src="https://calendar.google.com/calendar/embed?src=334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Inter 6 Speed -->
+            <div id="inter6" class="tab-content">
+                <div class="room-card">
+                    <h2>Inter 6 Speed</h2>
+                    <a href="https://calendar.google.com/calendar/u/0?cid=0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f%40group.calendar.google.com" target="_blank" class="btn-register">將會議室加入行事曆</a>
+                    <div class="calendar-wrapper">
+                        <iframe src="https://calendar.google.com/calendar/embed?src=0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
+                    </div>
+                </div>
+            </div>
 
             <!-- 二廠會議室 -->
             <div id="factory2" class="tab-content">
                 <div class="room-card">
                     <h2>二廠會議室</h2>
                     <a href="https://calendar.google.com/calendar/u/0?cid=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com"
-                        target="_blank" class="btn-register">點此開啟登記視窗</a>
+                        target="_blank" class="btn-register">將會議室加入行事曆</a>
                     <div class="calendar-wrapper">
                         <iframe
                             src="https://calendar.google.com/calendar/embed?src=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com&ctz=Asia%2FTaipei"
@@ -380,7 +449,7 @@
                     <h2>二廠訪客登記</h2>
                     <a href="https://calendar.google.com/calendar/u/0?cid=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com"
                         target="_blank" class="btn-register"
-                        style="background-color: var(--success-color); box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);">點此開啟登記視窗</a>
+                        style="background-color: var(--success-color); box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);">將會議室加入行事曆</a>
                     <div class="calendar-wrapper">
                         <iframe
                             src="https://calendar.google.com/calendar/embed?src=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com&ctz=Asia%2FTaipei"
