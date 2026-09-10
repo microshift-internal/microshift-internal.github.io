@@ -9,503 +9,253 @@
         :root {
             --primary-color: #007bff;
             --secondary-color: #6c757d;
-            --success-color: #28a745;
-            --info-color: #17a2b8;
-            --warning-color: #ffc107;
-            --danger-color: #dc3545;
-            --accent-color: #ff00d4;
+            --accent-color: #b00092;
             --bg-color: #f8f9fa;
-            --card-bg: #ffffff;
+            --card-bg: #fff;
             --text-color: #333;
         }
 
+        * { box-sizing: border-box; }
+
         body {
-            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Microsoft JhengHei';
+            font-family: "Segoe UI", Roboto, Arial, "Microsoft JhengHei", sans-serif;
             margin: 0;
-            padding: 0;
-            background-color: var(--bg-color);
+            background: var(--bg-color);
             color: var(--text-color);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
         }
 
         header {
             width: 100%;
-            background: white;
             padding: 20px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-            text-align: center;
             margin-bottom: 30px;
+            background: #fff;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+            text-align: center;
         }
 
-        .title {
-            font-size: 2.2rem;
-            font-weight: bold;
-            margin: 0;
-            color: #222;
-        }
-
-        .datetime {
-            font-size: 1.1rem;
-            color: var(--secondary-color);
-            margin-top: 10px;
-            font-family: monospace;
-        }
-
-        .container {
-            width: 95%;
-            max-width: 1000px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            transition: max-width 0.3s ease;
-            /* 平滑過渡 */
-        }
-
-        /* 當全覽模式啟動時，允許容器變寬 */
-        .container.wide-mode {
-            max-width: 1400px;
-        }
+        .title { margin: 0; color: #222; font-size: 2.2rem; }
+        .datetime { margin-top: 10px; color: var(--secondary-color); font-family: monospace; }
+        .container { width: 95%; max-width: 1000px; margin: 0 auto; }
+        .container.wide-mode { max-width: 1400px; }
 
         .announcement {
-            background-color: #e7f3ff;
-            border-left: 5px solid var(--primary-color);
+            width: 100%;
             padding: 15px 20px;
             margin-bottom: 25px;
+            background: #e7f3ff;
+            border-left: 5px solid var(--primary-color);
             border-radius: 4px;
-            width: 100%;
-            box-sizing: border-box;
-            font-size: 0.95rem;
-        }
-
-        /* 標籤頁樣式 */
-        .tabs-container {
-            width: 100%;
-            margin-bottom: 20px;
         }
 
         .tabs-nav {
             display: flex;
             flex-wrap: wrap;
-            gap: 10px;
             justify-content: center;
+            gap: 10px;
             margin-bottom: 20px;
         }
 
         .tab-btn {
             padding: 12px 24px;
-            border: none;
-            background: #e0e0e0;
-            cursor: pointer;
+            border: 0;
             border-radius: 30px;
+            background: #e0e0e0;
+            color: #555;
+            cursor: pointer;
             font-size: 1rem;
             font-weight: 600;
-            transition: all 0.3s ease;
-            color: #555;
         }
 
-        .tab-btn:hover {
-            background: #d0d0d0;
+        .tab-btn:hover { background: #d0d0d0; }
+        .tab-btn.active { background: var(--primary-color); color: #fff; }
+        .tab-btn:focus-visible, .btn-register:focus-visible {
+            outline: 3px solid #005fcc;
+            outline-offset: 3px;
         }
 
-        .tab-btn.active {
-            background: var(--primary-color);
-            color: white;
-            box-shadow: 0 4px 12px rgba(0, 123, 255, 0.3);
-        }
+        .tab-content { display: none; width: 100%; }
+        .tab-content.active { display: block; }
 
-        .tab-content {
-            display: none;
-            width: 100%;
-            animation: fadeIn 0.4s ease;
-        }
-
-        .tab-content.active {
-            display: block;
-        }
-
-        @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        /* 卡片樣式 */
         .room-card {
-            background: var(--card-bg);
-            border-radius: 12px;
             padding: 20px;
-            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
             margin-bottom: 30px;
+            border-radius: 12px;
+            background: var(--card-bg);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, .08);
             text-align: center;
+        }
+
+        .room-card ol {
+            text-align: left;
         }
 
         .btn-register {
             display: inline-block;
-            padding: 14px 32px;
-            background-color: var(--accent-color);
-            color: white;
-            text-decoration: none;
-            border-radius: 8px;
-            font-weight: bold;
+            padding: 14px 24px;
             margin-bottom: 20px;
-            transition: transform 0.2s, filter 0.2s, box-shadow 0.2s;
-            box-shadow: 0 4px 10px rgba(255, 0, 212, 0.2);
+            border-radius: 8px;
+            background: var(--accent-color);
+            color: #fff;
+            text-decoration: none;
+            font-weight: bold;
         }
 
-        .btn-register:hover {
-            transform: translateY(-2px);
-            filter: brightness(1.1);
-            box-shadow: 0 6px 15px rgba(255, 0, 212, 0.3);
-        }
-
-        /* 行事曆容器優化：解決手機版高度不足問題 */
         .calendar-wrapper {
             width: 100%;
             height: 550px;
-            /* 手機版預設高度提高，確保能看到內容 */
-            border-radius: 8px;
-            border: 1px solid #eee;
             overflow: hidden;
-            -webkit-overflow-scrolling: touch;
-            /* 優化 iOS 捲動 */
-        }
-
-        @media screen and (min-width: 768px) {
-            .calendar-wrapper {
-                height: 650px;
-                /* 電腦版高度同步稍微增加 */
-            }
-
-            .room-card {
-                padding: 30px;
-            }
-        }
-
-        .calendar-wrapper iframe {
-            width: 100%;
-            height: 100%;
-            border: 0;
-        }
-
-        .sample-img {
-            max-width: 100%;
-            height: auto;
+            border: 1px solid #eee;
             border-radius: 8px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        /* 一次瀏覽全部的格狀佈局 */
-        .all-rooms-grid {
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 20px;
-            width: 100%;
+        .calendar-wrapper iframe { width: 100%; height: 100%; border: 0; }
+        .sample-img { max-width: 100%; height: auto; border-radius: 8px; }
+        .all-rooms-grid { display: grid; grid-template-columns: 1fr; gap: 20px; }
+        footer { padding: 10px 0 40px; color: var(--secondary-color); text-align: center; font-size: .9rem; }
+
+        @media (min-width: 768px) {
+            .room-card { padding: 30px; }
+            .calendar-wrapper { height: 650px; }
         }
 
-        @media screen and (min-width: 1200px) {
-            .all-rooms-grid {
-                grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
-                gap: 30px;
-                justify-content: center;
-                /* 格狀項目置中 */
-            }
-
-            /* 讓全覽模式在寬螢幕下可以撐開容器並置中 */
-            #all.active {
-                max-width: 1400px;
-                width: 95vw;
-                margin-left: auto;
-                margin-right: auto;
-            }
+        @media (min-width: 1200px) {
+            .all-rooms-grid { grid-template-columns: repeat(auto-fit, minmax(450px, 1fr)); gap: 30px; }
         }
 
-        footer {
-            margin-top: 40px;
-            padding-bottom: 40px;
-            color: var(--secondary-color);
-            font-size: 0.9rem;
+        @media (prefers-reduced-motion: no-preference) {
+            .tab-content.active { animation: fadeIn .3s ease; }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
     </style>
 </head>
 
 <body>
-
     <header>
         <h1 class="title">會議室使用登記 📅</h1>
-        <div class="datetime" id="currentDatetime"></div>
+        <div class="datetime" id="currentDatetime" aria-live="polite"></div>
     </header>
 
-    <div class="container">
+    <main class="container" id="mainContainer">
         <div class="announcement">
-            <strong>📝 注意事項：</strong>若要編輯需登入 Google 帳號，第一次使用請提供 Google 帳號設定權限。
+            <strong>📝 使用提醒：</strong>本網站提供會議室預約狀況查詢；實際預約、修改及取消，皆需至 Google 行事曆操作。
         </div>
 
         <div class="tabs-container">
-            <nav class="tabs-nav">
-                <button class="tab-btn active" onclick="openTab(event, 'info')">使用說明</button>
-                <button class="tab-btn" onclick="openTab(event, 'speed15')">15 Speed</button>
-                <button class="tab-btn" onclick="openTab(event, 'speed30')">30 Speed</button>
-                <button class="tab-btn" onclick="openTab(event, 'inter12')">Inter 12 Speed</button>
-                <button class="tab-btn" onclick="openTab(event, 'speed4')">4 Speed</button>
-                <button class="tab-btn" onclick="openTab(event, 'speed8')">8 Speed</button>
-                <button class="tab-btn" onclick="openTab(event, 'inter6')">Inter 6 Speed</button>
-                <button class="tab-btn" onclick="openTab(event, 'factory2')">二廠會議室</button>
-                <button class="tab-btn" onclick="openTab(event, 'visitor')">二廠訪客登記</button>
-                <button class="tab-btn" onclick="openTab(event, 'all')">全覽</button>
-            </nav>
-
-            <!-- 使用說明 -->
-            <div id="info" class="tab-content active">
-                <div class="room-card">
-                    <h2>預約流程說明</h2>
-                    <p>請先確認下方各會議室的空檔時間，再點擊對應按鈕進行預約登記。</p>
-                    <img src="index.files/meetroom_sample.png" alt="預約範例" class="sample-img">
-                </div>
-            </div>
-
-            <!-- 一次瀏覽全部 -->
-            <div id="all" class="tab-content">
-                <div class="all-rooms-grid">
-
+            <nav class="tabs-nav" id="tabsNav" role="tablist" aria-label="會議室分頁"></nav>
+            <div id="tabPanels">
+                <section id="info" class="tab-content active" role="tabpanel" aria-labelledby="tab-info">
                     <div class="room-card">
-                        <h3>15 Speed</h3>
-                        <a href="https://calendar.google.com/calendar/u/0?cid=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com"
-                            target="_blank" rel="noopener noreferrer" class="btn-register">                            將會議室加入行事曆</a>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe
-                                src="https://calendar.google.com/calendar/embed?src=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                                loading="lazy"></iframe>
-                        </div>
+                        <h2>會議室預約說明</h2>
+                        <ol>
+                            <li>點選上方會議室分頁，查看該會議室目前的預約狀況。</li>
+                            <li>行事曆中的內容僅供查看，無法直接在本頁完成預約。</li>
+                            <li>確認空檔時間後，點選「前往 Google 行事曆預約」。</li>
+                            <li>系統會開啟 Google 行事曆，請登入 Google 帳號後完成預約登記。</li>
+                            <li>預約完成後，請確認活動已成功建立於 Google 行事曆中。</li>
+                        </ol>
+                        <p><strong>提醒：</strong>預約、修改及取消都必須在 Google 行事曆中操作。</p>
+                        <img src="index.files/meetroom_sample.png" alt="會議室預約流程範例" class="sample-img">
                     </div>
-
-                    <div class="room-card">
-                        <h3>30 Speed</h3>
-                        <a href="https://calendar.google.com/calendar/u/0?cid=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com"
-                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe
-                                src="https://calendar.google.com/calendar/embed?src=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                                loading="lazy"></iframe>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <h3>Inter 12 Speed</h3>
-                        <a href="https://calendar.google.com/calendar/u/0?cid=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com"
-                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <h3>4 Speed</h3>
-                        <a href="https://calendar.google.com/calendar/u/0?cid=d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6%40group.calendar.google.com"
-                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe src="https://calendar.google.com/calendar/embed?src=d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <h3>8 Speed</h3>
-                        <a href="https://calendar.google.com/calendar/u/0?cid=334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c%40group.calendar.google.com"
-                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe src="https://calendar.google.com/calendar/embed?src=334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <h3>Inter 6 Speed</h3>
-                        <a href="https://calendar.google.com/calendar/u/0?cid=0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f%40group.calendar.google.com"
-                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe src="https://calendar.google.com/calendar/embed?src=0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
-                        </div>
-                    </div>
-
-                    <div class="room-card">
-                        <h3>二廠會議室</h3>
-                        <a href="https://calendar.google.com/calendar/u/0?cid=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com"
-                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe
-                                src="https://calendar.google.com/calendar/embed?src=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                                loading="lazy"></iframe>
-                        </div>
-                    </div>
-                    <div class="room-card">
-                        <h3>二廠訪客登記</h3>
-                        <a href="https://calendar.google.com/calendar/u/0?cid=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com"
-                            target="_blank" rel="noopener noreferrer" class="btn-register">將會議室加入行事曆</a>
-                        <div class="calendar-wrapper" style="height: 450px;">
-                            <iframe
-                                src="https://calendar.google.com/calendar/embed?src=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                                loading="lazy"></iframe>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 15 Speed -->
-            <div id="speed15" class="tab-content">
-                <div class="room-card">
-                    <h2>15 Speed</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com"
-                        target="_blank" class="btn-register">將會議室加入行事曆</a>
-                    <div class="calendar-wrapper">
-                        <iframe
-                            src="https://calendar.google.com/calendar/embed?src=8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                            loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 30 Speed -->
-            <div id="speed30" class="tab-content">
-                <div class="room-card">
-                    <h2>30 Speed</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com"
-                        target="_blank" class="btn-register">將會議室加入行事曆</a>
-                    <div class="calendar-wrapper">
-                        <iframe
-                            src="https://calendar.google.com/calendar/embed?src=79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                            loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Inter 12 Speed -->
-            <div id="inter12" class="tab-content">
-                <div class="room-card">
-                    <h2>Inter 12 Speed</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com" target="_blank" class="btn-register" style="background-color: var(--info-color); box-shadow: 0 4px 10px rgba(23, 162, 184, 0.2);">將會議室加入行事曆</a>
-                    <div class="calendar-wrapper">
-                        <iframe src="https://calendar.google.com/calendar/embed?src=15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 4 Speed -->
-            <div id="speed4" class="tab-content">
-                <div class="room-card">
-                    <h2>4 Speed</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6%40group.calendar.google.com" target="_blank" class="btn-register">將會議室加入行事曆</a>
-                    <div class="calendar-wrapper">
-                        <iframe src="https://calendar.google.com/calendar/embed?src=d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 8 Speed -->
-            <div id="speed8" class="tab-content">
-                <div class="room-card">
-                    <h2>8 Speed</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c%40group.calendar.google.com" target="_blank" class="btn-register">將會議室加入行事曆</a>
-                    <div class="calendar-wrapper">
-                        <iframe src="https://calendar.google.com/calendar/embed?src=334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Inter 6 Speed -->
-            <div id="inter6" class="tab-content">
-                <div class="room-card">
-                    <h2>Inter 6 Speed</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f%40group.calendar.google.com" target="_blank" class="btn-register">將會議室加入行事曆</a>
-                    <div class="calendar-wrapper">
-                        <iframe src="https://calendar.google.com/calendar/embed?src=0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f%40group.calendar.google.com&ctz=Asia%2FTaipei" loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 二廠會議室 -->
-            <div id="factory2" class="tab-content">
-                <div class="room-card">
-                    <h2>二廠會議室</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com"
-                        target="_blank" class="btn-register">將會議室加入行事曆</a>
-                    <div class="calendar-wrapper">
-                        <iframe
-                            src="https://calendar.google.com/calendar/embed?src=dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                            loading="lazy"></iframe>
-                    </div>
-                </div>
-            </div>
-
-            <!-- 二廠訪客登記 -->
-            <div id="visitor" class="tab-content">
-                <div class="room-card">
-                    <h2>二廠訪客登記</h2>
-                    <a href="https://calendar.google.com/calendar/u/0?cid=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com"
-                        target="_blank" class="btn-register"
-                        style="background-color: var(--success-color); box-shadow: 0 4px 10px rgba(40, 167, 69, 0.2);">將會議室加入行事曆</a>
-                    <div class="calendar-wrapper">
-                        <iframe
-                            src="https://calendar.google.com/calendar/embed?src=62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af%40group.calendar.google.com&ctz=Asia%2FTaipei"
-                            loading="lazy"></iframe>
-                    </div>
-                </div>
+                </section>
             </div>
         </div>
-    </div>
+    </main>
 
-    <footer>
-        &copy; 2026 Microshift 台灣微轉
-    </footer>
+    <footer>&copy; <span id="currentYear"></span> Microshift 台灣微轉</footer>
 
     <script>
-        // 日期時間更新
+        const rooms = [
+            { id: "speed15", name: "15 Speed", calendarId: "8c1694091a20fc60b74de84a22256488a7683ed353a9579669727ac442cb1603@group.calendar.google.com" },
+            { id: "speed30", name: "30 Speed", calendarId: "79ae5ce5a4206ce00ae73e9f7f71f5f1571bb94535d4cd2e883292e6baf8e03a@group.calendar.google.com" },
+            { id: "inter12", name: "Inter 12 Speed", calendarId: "15a2eb874e570b0f82fea3d4e16792fe48ea75fcf7e8aa468d1444b662aac678@group.calendar.google.com" },
+            { id: "speed4", name: "4 Speed", calendarId: "d1c9ede0ead5821cc753b97e7c295a939cfac9f913adab9b422bce09110848e6@group.calendar.google.com" },
+            { id: "speed8", name: "8 Speed", calendarId: "334b2ff7283c35a3c1f1e07d23d4395c1e12e9be5636e65c9bf1a86c36cc236c@group.calendar.google.com" },
+            { id: "inter6", name: "Inter 6 Speed", calendarId: "0a43133f8f3c0d167ff1e2491d193b6bf67a6c782cb8e268b6a34f03ac28c41f@group.calendar.google.com" },
+            { id: "factory2", name: "二廠會議室", calendarId: "dbec68cc6f54bf7764aa998de4dc457f49f31f3476c5c3b46eb2f37fbe658a77@group.calendar.google.com" },
+            { id: "visitor", name: "二廠訪客登記", calendarId: "62eaded99b7ed95902e257484a9ddced341d7d3e2a8040be0dccda929e82c6af@group.calendar.google.com" }
+        ];
+
+        const calendarUrl = room => `https://calendar.google.com/calendar/u/0?cid=${encodeURIComponent(room.calendarId)}`;
+        const embedUrl = room => `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(room.calendarId)}&ctz=Asia%2FTaipei`;
+        const registrationLabel = "前往 Google 行事曆預約";
+
+        function registrationLink(room) {
+            return `<a class="btn-register" href="${calendarUrl(room)}" target="_blank" rel="noopener noreferrer">${registrationLabel}</a>`;
+        }
+
+        function calendarFrame(room, compact) {
+            return `<div class="calendar-wrapper"${compact ? ' style="height:450px"' : ""}><iframe src="${embedUrl(room)}" title="${room.name} 行事曆" loading="lazy"></iframe></div>`;
+        }
+
+        function renderRooms() {
+            const nav = document.getElementById("tabsNav");
+            const panels = document.getElementById("tabPanels");
+            nav.innerHTML = [
+                { id: "info", name: "使用說明" },
+                ...rooms.map(room => ({ id: room.id, name: room.name })),
+                { id: "all", name: "全覽" }
+            ].map((tab, index) =>
+                `<button id="tab-${tab.id}" class="tab-btn${index === 0 ? " active" : ""}" role="tab" aria-selected="${index === 0}" aria-controls="${tab.id}" tabindex="${index === 0 ? "0" : "-1"}">${tab.name}</button>`
+            ).join("");
+
+            panels.insertAdjacentHTML("beforeend", rooms.map(room => `
+                <section id="${room.id}" class="tab-content" role="tabpanel" aria-labelledby="tab-${room.id}">
+                    <div class="room-card"><h2>${room.name}</h2>${registrationLink(room)}${calendarFrame(room, false)}</div>
+                </section>
+            `).join(""));
+
+            panels.insertAdjacentHTML("beforeend", `
+                <section id="all" class="tab-content" role="tabpanel" aria-labelledby="tab-all">
+                    <div class="all-rooms-grid">${rooms.map(room => `
+                        <div class="room-card"><h3>${room.name}</h3>${registrationLink(room)}${calendarFrame(room, true)}</div>
+                    `).join("")}</div>
+                </section>
+            `);
+        }
+
+        function activateTab(tabId, focusButton) {
+            document.querySelectorAll('[role="tab"]').forEach(tab => {
+                const selected = tab.id === `tab-${tabId}`;
+                tab.classList.toggle("active", selected);
+                tab.setAttribute("aria-selected", selected);
+                tab.tabIndex = selected ? 0 : -1;
+            });
+            document.querySelectorAll('[role="tabpanel"]').forEach(panel => {
+                panel.classList.toggle("active", panel.id === tabId);
+            });
+            document.getElementById("mainContainer").classList.toggle("wide-mode", tabId === "all");
+            if (focusButton) document.getElementById(`tab-${tabId}`).focus();
+        }
+
         function updateDatetime() {
             const now = new Date();
-            const options = {
-                year: 'numeric', month: '2-digit', day: '2-digit',
-                hour: '2-digit', minute: '2-digit', second: '2-digit',
-                hour12: false
-            };
-            document.getElementById('currentDatetime').innerText = now.toLocaleString('zh-TW', options);
+            document.getElementById("currentDatetime").textContent = now.toLocaleString("zh-TW", {
+                timeZone: "Asia/Taipei", year: "numeric", month: "2-digit", day: "2-digit",
+                hour: "2-digit", minute: "2-digit", second: "2-digit", hour12: false
+            }) + "（台北時間）";
         }
-        setInterval(updateDatetime, 1000);
+
+        renderRooms();
+        document.getElementById("tabsNav").addEventListener("click", event => {
+            const tab = event.target.closest('[role="tab"]');
+            if (tab) activateTab(tab.getAttribute("aria-controls"), false);
+        });
+        document.getElementById("tabsNav").addEventListener("keydown", event => {
+            if (!["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+            const tabs = [...document.querySelectorAll('[role="tab"]')];
+            const current = tabs.indexOf(event.target);
+            const next = event.key === "Home" ? 0 : event.key === "End" ? tabs.length - 1 :
+                (current + (event.key === "ArrowRight" ? 1 : -1) + tabs.length) % tabs.length;
+            event.preventDefault();
+            activateTab(tabs[next].getAttribute("aria-controls"), true);
+        });
         updateDatetime();
-
-        // 標籤頁切換功能
-        function openTab(evt, tabName) {
-            var i, tabContent, tabBtns;
-
-            // 隱藏所有內容
-            tabContent = document.getElementsByClassName("tab-content");
-            for (i = 0; i < tabContent.length; i++) {
-                tabContent[i].classList.remove("active");
-            }
-
-            // 取消所有按鈕的 active 狀態
-            tabBtns = document.getElementsByClassName("tab-btn");
-            for (i = 0; i < tabBtns.length; i++) {
-                tabBtns[i].classList.remove("active");
-            }
-
-            // 顯示目前點選的內容與 active 狀態
-            document.getElementById(tabName).classList.add("active");
-            evt.currentTarget.classList.add("active");
-
-            // 處理全覽模式的容器寬度
-            const container = document.querySelector('.container');
-            if (tabName === 'all') {
-                container.classList.add('wide-mode');
-            } else {
-                container.classList.remove('wide-mode');
-            }
-        }
+        setInterval(updateDatetime, 30000);
+        document.getElementById("currentYear").textContent = new Date().getFullYear();
     </script>
 </body>
 
