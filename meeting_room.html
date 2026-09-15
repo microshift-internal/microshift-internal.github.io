@@ -153,7 +153,7 @@
                         <ol>
                             <li>點選上方會議室分頁，查看該會議室目前的預約狀況。</li>
                             <li>行事曆中的內容僅供查看，無法直接在本頁完成預約。</li>
-                            <li>確認空檔時間後，點選「前往 Google 行事曆預約」。</li>
+                            <li>確認空檔時間後，點選「加入 Google 行事曆」。</li>
                             <li>系統會開啟 Google 行事曆，請登入 Google 帳號後完成預約登記。</li>
                             <li>預約完成後，請確認活動已成功建立於 Google 行事曆中。</li>
                         </ol>
@@ -181,7 +181,7 @@
 
         const calendarUrl = room => `https://calendar.google.com/calendar/u/0?cid=${encodeURIComponent(room.calendarId)}`;
         const embedUrl = room => `https://calendar.google.com/calendar/embed?src=${encodeURIComponent(room.calendarId)}&ctz=Asia%2FTaipei`;
-        const registrationLabel = "前往 Google 行事曆預約";
+        const registrationLabel = "加入 Google 行事曆";
 
         function registrationLink(room) {
             return `<a class="btn-register" href="${calendarUrl(room)}" target="_blank" rel="noopener noreferrer">${registrationLabel}</a>`;
@@ -254,7 +254,7 @@
             activateTab(tabs[next].getAttribute("aria-controls"), true);
         });
         updateDatetime();
-        setInterval(updateDatetime, 30000);
+        setInterval(updateDatetime, 1000);
         document.getElementById("currentYear").textContent = new Date().getFullYear();
     </script>
 </body>
